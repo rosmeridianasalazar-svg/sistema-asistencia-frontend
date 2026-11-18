@@ -3,6 +3,7 @@ import { ref, computed, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useDisplay } from 'vuetify'
 import { useAuthStore } from '@/modules/autenticacion/store/authStore'
+import DialogoCerrarSesion from '@/components/dialogoCerrarSesion.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -11,34 +12,68 @@ const authStore = useAuthStore()
 const { mdAndUp } = useDisplay()
 
 const drawer = ref(false)
+// Controla si el menú lateral está colapsado (solo íconos)
+const rail = ref(false)
+// Controla la apertura de la ventana de confirmación
+const dialogoCerrarSesion = ref(false)
 
 watch(
   mdAndUp,
   (esDesktop) => {
     drawer.value = esDesktop
+    if (!esDesktop) rail.value = false
   },
   { immediate: true },
 )
 
 const drawerPermanente = computed(() => mdAndUp.value)
+const esModoMini = computed(() => mdAndUp.value && rail.value)
 
 const usuario = computed(() => authStore.usuario)
-
 const nombreCompleto = computed(() =>
   `${usuario.value?.nombre || ''} ${usuario.value?.apellido_paterno || ''}`.trim(),
 )
 
+// 1. Define qué roles pueden ver cada opción (igual que roles_permitidos en tu backend)
 const menuItems = [
-  { title: 'Inicio', icon: 'mdi-view-dashboard-outline', route: 'dashboard' },
-  { title: 'Usuarios', icon: 'mdi-account-group-outline', route: 'usuarios' },
-  { title: 'Roles', icon: 'mdi-shield-account-outline', route: 'roles' },
-  { title: 'Horarios', icon: 'mdi-calendar-clock-outline', route: 'horarios' },
-  { title: 'Asistencias', icon: 'mdi-calendar-check-outline', route: 'asistencias' },
+  { title: 'Inicio', icon: 'mdi-view-dashboard-outline', route: 'dashboard', roles: [] }, // [] = Todos los roles
+  {
+    title: 'Usuarios',
+    icon: 'mdi-account-group-outline',
+    route: 'usuarios',
+    roles: ['Administrador'],
+  },
+  { title: 'Roles', icon: 'mdi-shield-account-outline', route: 'roles', roles: ['Administrador'] },
+  {
+    title: 'Horarios',
+    icon: 'mdi-calendar-clock-outline',
+    route: 'horarios',
+    roles: ['Administrador', 'Empleado'],
+  },
+  { title: 'Asistencias', icon: 'mdi-calendar-check-outline', route: 'asistencias', roles: [] },
+  { title: 'Anuncios', icon: 'mdi-bullhorn-outline', route: 'reportes', roles: [] },
+  { title: 'Sustentación', icon: 'mdi-file-document-outline', route: 'reportes', roles: [] },
+  {
+    title: 'Configuración',
+    icon: 'mdi-cog-outline',
+    route: 'configuracion',
+    roles: ['Administrador'],
+  },
 ]
+// 2. Filtra el menú según el rol del usuario
+const menuFiltrado = computed(() => {
+  const user = authStore.usuario
+  // Extrae el nombre del rol sin importar si el serializer lo envía como objeto o texto
+  const rolUsuario = user?.id_rol?.nombre || user?.rol || user?.nombre_rol || ''
 
-const paginaActual = computed(
-  () => menuItems.find((item) => item.route === route.name)?.title || 'Sistema',
-)
+  return menuItems.filter((item) => {
+    // Si roles está vacío, cualquier usuario logueado (Practicante, Empleado, Admin) lo ve
+    if (!item.roles || item.roles.length === 0) return true
+
+    // Si tiene roles definidos, verifica si el rol del usuario está en la lista
+    return item.roles.includes(rolUsuario)
+  })
+})
 
 function navegar(nombreRuta) {
   router.push({ name: nombreRuta })
@@ -55,86 +90,119 @@ function salir() {
 </script>
 
 <template>
+  <!--  Altura dinámica: 88px en laptop para un logo grande, 64px en celular -->
+  <v-app-bar color="#111111" elevation="1" :height="mdAndUp ? 98 : 74">
+    <v-app-bar-nav-icon color="white" @click="mdAndUp ? (rail = !rail) : (drawer = !drawer)" />
+    <img
+      src="https://i.postimg.cc/NGkbyD4C/nexos2-0.png"
+      alt="Logo NEXOS"
+      :style="{
+        height: mdAndUp ? '98px' : '70px',
+        width: mdAndUp ? '250px' : '140px',
+        objectFit: 'contain',
+        objectPosition: 'left center',
+        marginLeft: mdAndUp ? '10px' : '6px',
+      }"
+    />
+
+    <v-spacer />
+
+    <v-menu location="bottom end" transition="scale-transition" :offset="8">
+      <template #activator="{ props }">
+        <div
+          v-bind="props"
+          class="d-flex align-center ga-1 ga-sm-2 mr-2 mr-sm-4 pa-1 px-sm-2 rounded-lg cursor-pointer perfil-hover"
+        >
+          <v-avatar color="white" :size="mdAndUp ? 42 : 28">
+            <v-icon icon="mdi-account" color="#F2690D" :size="mdAndUp ? 24 : 18" />
+          </v-avatar>
+
+          <div class="text-white">
+            <!-- Muestra solo el primer nombre en celular y el nombre completo en laptop -->
+            <div class="text-caption text-sm-body-2 font-weight-bold d-flex align-center">
+              <!-- {{ nombreCompleto || 'Usuario' }} -->
+              <v-icon icon="mdi-chevron-down" size="18" class="ml-1" />
+            </div>
+
+            <!-- El correo se oculta en celular por altura, pero se ve en laptop -->
+            <!-- <div class="d-none d-sm-block text-caption" style="opacity: 0.9">
+              {{ usuario?.correo }}
+            </div> -->
+          </div>
+        </div>
+      </template>
+
+      <!-- Tarjeta desplegable al hacer clic en el perfil -->
+      <v-card min-width="220" rounded="lg" elevation="4">
+        <div class="pa-3 bg-grey-lighten-4">
+          <div class="text-subtitle-2 font-weight-bold text-grey-darken-4">
+            {{ nombreCompleto || 'Usuario' }}
+          </div>
+          <div class="text-caption text-grey-darken-1 text-truncate">
+            {{ usuario?.correo }}
+          </div>
+        </div>
+
+        <v-divider />
+
+        <v-list density="compact" class="pa-1">
+          <v-list-item
+            prepend-icon="mdi-logout"
+            title="Cerrar sesión"
+            base-color="error"
+            rounded="md"
+            @click="dialogoCerrarSesion = true"
+          />
+        </v-list>
+      </v-card>
+    </v-menu>
+  </v-app-bar>
+
   <v-navigation-drawer
     v-model="drawer"
     :permanent="drawerPermanente"
     :temporary="!drawerPermanente"
-    color="#172337"
+    :rail="esModoMini"
+    rail-width="72"
+    color="#111111"
     width="260"
   >
-    <div class="pa-5">
-      <div class="d-flex align-center ga-3">
-        <v-avatar color="primary" rounded="lg" size="42">
-          <v-icon icon="mdi-fingerprint" color="white" size="26" />
-        </v-avatar>
-
-        <div>
-          <div class="text-white font-weight-bold">Control de asistencia</div>
-          <div class="text-grey-lighten-1 text-caption">Sistema de gestión</div>
-        </div>
-      </div>
-    </div>
-
-    <v-divider color="white" opacity="0.12" />
-
-    <v-list nav density="comfortable" class="pa-3">
+    <!-- Lista de navegación -->
+    <v-list density="default" class="pa-3 mt-1">
       <v-list-item
-        v-for="item in menuItems"
-        :key="item.route"
+        v-for="item in menuFiltrado"
+        :key="item.title"
         :prepend-icon="item.icon"
         :title="item.title"
         :active="route.name === item.route"
-        color="white"
-        base-color="grey-lighten-1"
+        color="#F2690D"
+        base-color="white"
         rounded="lg"
         class="mb-1"
         @click="navegar(item.route)"
-      />
+      >
+        <v-tooltip v-if="esModoMini" activator="parent" location="end">
+          {{ item.title }}
+        </v-tooltip>
+      </v-list-item>
     </v-list>
-
-    <template #append>
-      <v-divider color="white" opacity="0.12" />
-
-      <v-list class="pa-3">
-        <v-list-item
-          prepend-icon="mdi-logout"
-          title="Cerrar sesión"
-          rounded="lg"
-          class="text-white"
-          @click="salir"
-        />
-      </v-list>
-    </template>
   </v-navigation-drawer>
 
   <v-main class="bg-grey-lighten-4">
-    <v-app-bar color="white" elevation="0" border="b">
-      <v-app-bar-nav-icon v-if="!mdAndUp" @click="drawer = !drawer" />
-
-      <v-app-bar-title class="font-weight-bold text-grey-darken-3">
-        {{ paginaActual }}
-      </v-app-bar-title>
-
-      <v-spacer />
-
-      <div class="d-flex align-center ga-2 mr-4">
-        <v-avatar color="primary" size="36">
-          <v-icon icon="mdi-account" color="white" />
-        </v-avatar>
-
-        <div class="d-none d-sm-block">
-          <div class="text-body-2 font-weight-medium">
-            {{ nombreCompleto || 'Usuario' }}
-          </div>
-          <div class="text-caption text-grey">
-            {{ usuario?.correo }}
-          </div>
-        </div>
-      </div>
-    </v-app-bar>
-
     <v-container fluid class="pa-3 pa-sm-5 pa-md-6">
       <router-view />
     </v-container>
   </v-main>
+
+  <!-- Ventana modal de confirmación -->
+  <DialogoCerrarSesion v-model="dialogoCerrarSesion" @confirmar="salir" />
 </template>
+
+<style scoped>
+.perfil-hover {
+  transition: background-color 0.2s ease;
+}
+.perfil-hover:hover {
+  background-color: rgba(255, 255, 255, 0.12);
+}
+</style>

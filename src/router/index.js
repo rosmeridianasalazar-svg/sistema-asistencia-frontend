@@ -88,6 +88,7 @@ const routes = [
         path: 'usuarios',
         name: 'usuarios',
         component: () => import('@/modules/usuarios/views/UsuariosView.vue'),
+        meta: { roles: ['Administrador'] },
       },
       
     ],
@@ -112,5 +113,22 @@ router.beforeEach((to) => {
 
   return true
 })
+
+
+router.beforeEach((to, from) => {
+  const authStore = useAuthStore()
+  const user = authStore.usuario
+  const rolesPermitidos = to.meta.roles
+
+  // Si la ruta tiene restricción de roles
+  if (rolesPermitidos && rolesPermitidos.length > 0) {
+    const rolUsuario = user?.id_rol?.nombre || user?.rol || user?.nombre_rol || ''
+
+    if (!rolesPermitidos.includes(rolUsuario)) {
+      return { name: 'dashboard' } // Si es Practicante y quiere entrar a /usuarios, lo devuelve a Inicio
+    }
+  }
+})
+
 
 export default router

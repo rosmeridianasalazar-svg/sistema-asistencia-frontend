@@ -51,22 +51,17 @@ async function ingresar() {
 
 <template>
   <div class="login-wrapper">
-    
-    <v-card 
-      class="shadow-card overflow-hidden" 
-      max-width="720" 
-      width="100%"
-    >
+    <v-card class="shadow-card overflow-hidden" max-width="720" width="100%">
       <v-row no-gutters class="login-row">
-        <v-col 
-          cols="12" 
-          md="5" 
+        <v-col
+          cols="12"
+          md="5"
           class="nexos-panel d-flex flex-column align-center text-center text-white position-relative py-4 px-5 pa-md-6"
         >
           <div class="z-1 my-auto d-flex flex-column align-center">
-            <img 
-              src="https://i.postimg.cc/NGkbyD4C/nexos2-0.png" 
-              alt="Logo Nexos" 
+            <img
+              src="https://i.postimg.cc/NGkbyD4C/nexos2-0.png"
+              alt="Logo Nexos"
               class="nexos-logo mb-2 mb-md-5"
             />
 
@@ -76,12 +71,11 @@ async function ingresar() {
           </div>
         </v-col>
 
-        <v-col 
-          cols="12" 
-          md="7" 
+        <v-col
+          cols="12"
+          md="7"
           class="form-panel pa-5 pa-sm-7 pa-md-9 bg-white d-flex flex-column justify-center"
         >
-          
           <div v-if="vistaActual === 'login'">
             <div class="mb-3 mb-md-6">
               <div class="hello-text">¡Hola!</div>
@@ -92,7 +86,6 @@ async function ingresar() {
             </div>
 
             <v-form @submit.prevent="ingresar" class="d-flex flex-column">
-              
               <v-text-field
                 v-model="correo"
                 label="Correo electrónico"
@@ -119,11 +112,11 @@ async function ingresar() {
                 @click:append-inner="mostrarPassword = !mostrarPassword"
               />
 
-              <v-alert 
-                v-if="error" 
-                type="error" 
-                variant="tonal" 
-                density="compact" 
+              <v-alert
+                v-if="error"
+                type="error"
+                variant="tonal"
+                density="compact"
                 class="mt-3 mb-1 custom-alert"
               >
                 {{ error }}
@@ -139,7 +132,7 @@ async function ingresar() {
               >
                 Ingresar
               </v-btn>
-              
+
               <div class="text-center mt-3 mt-md-4">
                 <span class="create-account-text" @click="vistaActual = 'recuperar'">
                   Restablecer contraseña
@@ -147,16 +140,10 @@ async function ingresar() {
               </div>
             </v-form>
           </div>
-          <SolicitarRecuperacionForm 
-            v-else 
-            @volver="vistaActual = 'login'" 
-          />
-
+          <SolicitarRecuperacionForm v-else @volver="vistaActual = 'login'" />
         </v-col>
-
       </v-row>
     </v-card>
-
   </div>
 </template>
 <style>
