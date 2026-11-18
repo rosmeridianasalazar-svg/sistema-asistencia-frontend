@@ -185,7 +185,7 @@ onMounted(() => {
     <!-- ENCABEZADO -->
     <div class="usuarios-encabezado mb-5">
       <div>
-        <div class="text-h5 font-weight-bold text-grey-darken-3">Gestión de usuarios</div>
+        <div class="title text-h5 font-weight-bold">Gestión de usuarios</div>
 
         <div class="text-body-2 text-medium-emphasis mt-1">
           Administra los usuarios registrados en el sistema.
@@ -193,7 +193,7 @@ onMounted(() => {
       </div>
 
       <v-btn
-        color="primary"
+        color="#F2690D"
         prepend-icon="mdi-account-plus-outline"
         variant="flat"
         rounded="lg"

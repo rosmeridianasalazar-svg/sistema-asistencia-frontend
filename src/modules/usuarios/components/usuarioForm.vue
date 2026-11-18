@@ -47,7 +47,7 @@ const {
             {{ esEdicion ? 'Editar usuario' : 'Registrar usuario' }}
           </div>
 
-          <div class="text-caption text-medium-emphasis">
+          <div class="text-caption text-medium-emphasis mt-1">
             {{
               esEdicion
                 ? 'Actualiza los datos del usuario.'
