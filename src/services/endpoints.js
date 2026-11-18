@@ -2,6 +2,11 @@ const endpoints = {
     autenticacion: {
         login: '/autenticacion/login/',
         refresh: '/autenticacion/refresh/',
+
+        //recuperacion
+        solicitarRecuperacion: '/autenticacion/recuperar-password/',
+        confirmarRecuperacion: '/autenticacion/restablecer-password/',
+        
     },
 
     usuarios: {

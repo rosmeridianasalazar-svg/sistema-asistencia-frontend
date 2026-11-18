@@ -66,6 +66,14 @@ const routes = [
     component: () => import('@/modules/autenticacion/views/LoginView.vue'),
     meta: { guestOnly: true },
   },
+  //restablecer
+  {
+    path: '/restablecer-password',
+    name: 'restablecer-password',
+    component: () => import('@/modules/autenticacion/views/RestablecerPasswordView.vue'),
+    meta: { guestOnly: true },
+  },
+  //---
   {
     path: '/',
     component: () => import('@/layouts/mainLayout.vue'),
@@ -82,6 +90,7 @@ const routes = [
         component: () => import('@/modules/usuarios/views/UsuariosView.vue'),
         meta: { roles: ['Administrador'] },
       },
+      
     ],
   },
 ]
