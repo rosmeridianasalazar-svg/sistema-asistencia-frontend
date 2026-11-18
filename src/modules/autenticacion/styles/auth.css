@@ -1,0 +1,206 @@
+/* src/modules/autenticacion/styles/auth.css */
+.login-wrapper {
+  background: linear-gradient(rgb(249, 247, 247) 0%, #0c0c0c 100%);
+  min-height: 100vh;
+  min-height: 100dvh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.shadow-card {
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important;
+  border-radius: 10px !important;
+}
+
+.login-row {
+  min-height: 450px;
+}
+
+@media (min-width: 960px) {
+  .nexos-panel {
+    flex: 0 0 46% !important;
+    max-width: 46% !important;
+  }
+  .form-panel {
+    flex: 0 0 54% !important;
+    max-width: 54% !important;
+  }
+}
+
+.nexos-panel {
+  overflow: hidden;
+  background-color: black !important;
+}
+
+.nexos-logo {
+  max-width: 150px;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+
+.accent-divider {
+  width: 36px;
+  height: 3px;
+  background-color: #f57c00;
+  border-radius: 2px;
+}
+
+.welcome-title {
+  font-size: 20px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.welcome-subtitle {
+  font-size: 13px;
+  opacity: 0.9;
+  font-weight: 300;
+}
+
+.hello-text {
+  font-size: 13px;
+  color: #757575;
+  font-weight: 500;
+}
+
+.morning-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: #f57c00;
+  line-height: 1.25;
+  margin-top: 2px;
+  word-break: break-word;
+}
+
+.login-subtitle {
+  font-size: 13px;
+  color: #616161;
+  margin-top: 6px;
+}
+
+.custom-input .v-field__input {
+  font-size: 14px !important;
+  min-height: 38px !important;
+  padding-top: 30px !important;
+  padding-bottom: 4px !important;
+}
+
+.custom-input .v-field-label {
+  font-size: 13px !important;
+}
+
+.custom-input .v-icon {
+  font-size: 19px !important;
+  opacity: 0.7;
+}
+
+.custom-alert {
+  font-size: 12.5px !important;
+  line-height: 1.4 !important;
+  padding: 10px 12px !important;
+  border-radius: 6px !important;
+  min-height: 42px !important;
+  height: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  overflow: visible !important;
+}
+
+.custom-alert .v-alert__prepend {
+  margin-inline-end: 10px !important;
+  align-self: center !important;
+  margin-top: 0 !important;
+}
+
+.custom-alert .v-alert__content {
+  align-self: center !important;
+  overflow: visible !important;
+}
+
+.submit-btn {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.8px !important;
+  text-transform: uppercase !important;
+  border-radius: 6px !important;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              background-color 0.25s ease !important;
+}
+
+.submit-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(243, 127, 12, 0.45) !important;
+  background-color: #ff8c1a !important;
+}
+
+.submit-btn:active {
+  transform: translateY(0px) scale(0.98);
+  box-shadow: 0 3px 10px rgba(243, 127, 12, 0.3) !important;
+}
+
+.submit-btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.28), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.55s ease;
+}
+
+.submit-btn:hover::after {
+  left: 130%;
+}
+
+.create-account-text {
+  font-size: 12px;
+  color: #757575;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.create-account-text:hover {
+  color: #f57c00;
+}
+
+.z-1 {
+  z-index: 1;
+}
+
+@media (max-width: 959px) {
+  .login-wrapper {
+    padding: 12px;
+  }
+  .shadow-card {
+    max-width: 420px !important;
+  }
+  .login-row {
+    min-height: auto;
+  }
+  .nexos-logo {
+    max-width: 95px;
+  }
+  .welcome-title {
+    font-size: 17px;
+  }
+  .welcome-subtitle {
+    font-size: 11.5px;
+  }
+  .morning-title {
+    font-size: 18px;
+  }
+  .custom-input .v-field__input {
+    padding-top: 22px !important;
+    min-height: 34px !important;
+  }
+}

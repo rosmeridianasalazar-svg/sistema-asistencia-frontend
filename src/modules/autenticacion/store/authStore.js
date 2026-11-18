@@ -60,5 +60,37 @@ export const useAuthStore = defineStore('auth', {
             sessionStorage.removeItem('refresh')
             sessionStorage.removeItem('usuario')
         },
+
+        //recuperacion
+        async solicitarRecuperacion(correo) {
+            try {
+                const respuesta = await authService.solicitarRecuperacion(correo)
+                return {
+                    success: true,
+                    mensaje: respuesta.data?.detail || 'Te enviamos un enlace a tu correo.',
+                }
+            } catch (error) {
+                return {
+                    success: false,
+                    mensaje: error.response?.data?.detail || 'No se pudo enviar el correo.',
+                }
+            }
+        },
+
+        async confirmarRecuperacion(datos) {
+            try {
+                const respuesta = await authService.confirmarRecuperacion(datos)
+                return {
+                    success: true,
+                    mensaje: respuesta.data?.detail || 'Contraseña actualizada correctamente.',
+                }
+            } catch (error) {
+                return {
+                    success: false,
+                    mensaje: error.response?.data?.detail || 'El enlace no es válido o ya expiró.',
+                }
+            }
+        },
+
     },
 })
