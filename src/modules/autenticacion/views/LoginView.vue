@@ -17,7 +17,7 @@ const error = ref('')
 const saludoPorHora = computed(() => {
   const hora = new Date().getHours()
   if (hora >= 5 && hora < 12) return 'Buenos días'
-  if (hora >= 12 && hora < 19) return 'Buenas tardes'
+  if (hora >= 12 && hora < 18) return 'Buenas tardes'
   return 'Buenas noches'
 })
 
