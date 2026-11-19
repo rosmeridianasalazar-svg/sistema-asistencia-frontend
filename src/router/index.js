@@ -90,7 +90,7 @@ const routes = [
         component: () => import('@/modules/usuarios/views/UsuariosView.vue'),
         meta: { roles: ['Administrador'] },
       },
-      
+
     ],
   },
 ]
@@ -100,19 +100,19 @@ const router = createRouter({
   routes,
 })
 
-router.beforeEach((to) => {
-  const authStore = useAuthStore()
+// router.beforeEach((to) => {
+//   const authStore = useAuthStore()
 
-  if (to.matched.some(record => record.meta.requiresAuth) && !authStore.estaAutenticado) {
-    return { name: 'login' }
-  }
+//   if (to.matched.some(record => record.meta.requiresAuth) && !authStore.estaAutenticado) {
+//     return { name: 'login' }
+//   }
 
-  if (to.meta.guestOnly && authStore.estaAutenticado) {
-    return { name: 'dashboard' }
-  }
+//   if (to.meta.guestOnly && authStore.estaAutenticado) {
+//     return { name: 'dashboard' }
+//   }
 
-  return true
-})
+//   return true
+// })
 
 
 router.beforeEach((to, from) => {

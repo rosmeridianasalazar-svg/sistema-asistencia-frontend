@@ -276,7 +276,7 @@ onMounted(() => {
     <!-- USUARIOS REGISTRADOS -->
     <v-card rounded="lg" elevation="0" class="usuarios-panel">
       <v-card-title class="pa-4 d-flex align-center justify-space-between flex-wrap ga-2">
-        <span class="text-subtitle-1 font-weight-bold"> Usuarios registrados </span>
+        <div class="text-h6 font-weight-bold">Usuarios registrados</div>
 
         <v-chip size="small" color="primary" variant="tonal">
           {{ usuariosFiltrados.length }} registros

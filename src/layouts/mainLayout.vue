@@ -91,14 +91,14 @@ function salir() {
 
 <template>
   <!--  Altura dinámica: 88px en laptop para un logo grande, 64px en celular -->
-  <v-app-bar color="#111111" elevation="1" :height="mdAndUp ? 98 : 74">
+  <v-app-bar color="#111111" elevation="1" :height="mdAndUp ? 80 : 74">
     <v-app-bar-nav-icon color="white" @click="mdAndUp ? (rail = !rail) : (drawer = !drawer)" />
     <img
       src="https://i.postimg.cc/NGkbyD4C/nexos2-0.png"
       alt="Logo NEXOS"
       :style="{
-        height: mdAndUp ? '98px' : '70px',
-        width: mdAndUp ? '250px' : '140px',
+        height: mdAndUp ? '88px' : '70px',
+        width: mdAndUp ? '125px' : '140px',
         objectFit: 'contain',
         objectPosition: 'left center',
         marginLeft: mdAndUp ? '10px' : '6px',
@@ -165,10 +165,10 @@ function salir() {
     :rail="esModoMini"
     rail-width="72"
     color="#111111"
-    width="260"
+    width="200"
   >
     <!-- Lista de navegación -->
-    <v-list density="default" class="pa-3 mt-1">
+    <v-list nav density="default" class="pa-3 mt-1">
       <v-list-item
         v-for="item in menuFiltrado"
         :key="item.title"
