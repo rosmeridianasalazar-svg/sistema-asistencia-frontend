@@ -39,9 +39,27 @@ export function useUsuarioForm(props, emit) {
             /^\d{9}$/.test(String(v ?? '')) ||
             'El teléfono debe contener exactamente 9 dígitos.',
 
-        correo: v =>
-            /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v ?? '')) ||
-            'Ingresa un correo electrónico válido.',
+        correo: v => {
+            const correo = String(v ?? '').trim().toLowerCase()
+
+            if (!correo.includes('@')) {
+                return "El correo debe contener un '@'."
+            }
+
+            const [usuario, dominio] = correo.split('@')
+
+            if (!usuario) {
+                return "Ingresa un nombre antes del '@'."
+            }
+
+            const dominiosPermitidos = ['gmail.com', 'hotmail.com', 'outlook.com']
+
+            if (!dominio.endsWith('.com') || !dominiosPermitidos.includes(dominio)) {
+                return 'Usa un correo válido con dominio gmail.com, hotmail.com o outlook.com.'
+            }
+
+            return true
+        },
 
         password: v =>
             !v || String(v).length >= 8 ||

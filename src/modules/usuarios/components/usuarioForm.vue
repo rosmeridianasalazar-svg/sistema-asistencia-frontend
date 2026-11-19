@@ -1,5 +1,6 @@
 <script setup>
 import { useUsuarioForm } from '../composables/useUsuarioForm'
+import '../styles/usuarios.css'
 
 const props = defineProps({
   modelValue: { type: Boolean, default: false },
@@ -33,7 +34,7 @@ const {
 <template>
   <v-dialog
     :model-value="modelValue"
-    max-width="720"
+    max-width="620"
     width="calc(100% - 24px)"
     scrollable
     persistent
@@ -43,11 +44,11 @@ const {
       <!-- Encabezado -->
       <v-card-title class="d-flex align-center justify-space-between pa-4 pa-sm-5">
         <div>
-          <div class="text-h6 font-weight-bold">
+          <div class="text-h7 font-weight-bold">
             {{ esEdicion ? 'Editar usuario' : 'Registrar usuario' }}
           </div>
 
-          <div class="text-caption text-medium-emphasis mt-1">
+          <div class="subtitulo-modal text-medium-emphasis mt-1">
             {{
               esEdicion
                 ? 'Actualiza los datos del usuario.'
@@ -68,7 +69,7 @@ const {
             v-if="serverErrors.general"
             type="error"
             variant="tonal"
-            density="comfortable"
+            density="compact"
             class="mb-4"
           >
             {{ serverErrors.general }}
@@ -87,7 +88,7 @@ const {
                 item-title="nombre"
                 item-value="id_rol"
                 variant="outlined"
-                density="comfortable"
+                density="compact"
                 :rules="[reglas.requerido]"
                 :error-messages="serverErrors.campos?.id_rol"
                 @update:model-value="actualizarCampo"
@@ -100,7 +101,7 @@ const {
                 :model-value="formulario.dni"
                 label="DNI"
                 variant="outlined"
-                density="comfortable"
+                density="compact"
                 maxlength="8"
                 counter="8"
                 :rules="[reglas.requerido, reglas.dni]"
@@ -115,7 +116,7 @@ const {
                 v-model="formulario.nombre"
                 label="Nombres"
                 variant="outlined"
-                density="comfortable"
+                density="compact"
                 maxlength="50"
                 :rules="[reglas.requerido]"
                 :error-messages="serverErrors.campos?.nombre"
@@ -129,7 +130,7 @@ const {
                 v-model="formulario.apellido_paterno"
                 label="Apellido paterno"
                 variant="outlined"
-                density="comfortable"
+                density="compact"
                 maxlength="50"
                 :rules="[reglas.requerido]"
                 :error-messages="serverErrors.campos?.apellido_paterno"
@@ -143,7 +144,7 @@ const {
                 v-model="formulario.apellido_materno"
                 label="Apellido materno"
                 variant="outlined"
-                density="comfortable"
+                density="compact"
                 maxlength="50"
                 :error-messages="serverErrors.campos?.apellido_materno"
                 @update:model-value="actualizarCampo"
@@ -156,7 +157,7 @@ const {
                 :model-value="formulario.telefono"
                 label="Teléfono"
                 variant="outlined"
-                density="comfortable"
+                density="compact"
                 maxlength="9"
                 counter="9"
                 :rules="[reglas.requerido, reglas.telefono]"
@@ -172,7 +173,7 @@ const {
                 label="Fecha de nacimiento"
                 type="date"
                 variant="outlined"
-                density="comfortable"
+                density="compact"
                 :min="fechaMinima"
                 :max="fechaMaxima"
                 :rules="[reglas.fecha]"
@@ -195,7 +196,7 @@ const {
                 label="Correo electrónico"
                 type="email"
                 variant="outlined"
-                density="comfortable"
+                density="compact"
                 maxlength="100"
                 :rules="[reglas.requerido, reglas.correo]"
                 :error-messages="serverErrors.campos?.correo"
@@ -210,7 +211,7 @@ const {
                 label="Contraseña"
                 :type="mostrarPassword ? 'text' : 'password'"
                 variant="outlined"
-                density="comfortable"
+                density="compact"
                 :append-inner-icon="mostrarPassword ? 'mdi-eye-off' : 'mdi-eye'"
                 :rules="esEdicion ? [reglas.password] : [reglas.passwordRequerida, reglas.password]"
                 :error-messages="serverErrors.campos?.password"
@@ -249,7 +250,7 @@ const {
 
           <v-btn
             type="submit"
-            color="primary"
+            color="#F2690D"
             variant="flat"
             :loading="loading"
             :disabled="!puedeGuardar"

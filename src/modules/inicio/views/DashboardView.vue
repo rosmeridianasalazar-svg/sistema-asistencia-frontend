@@ -1,13 +1,15 @@
 <script setup>
 import { useAuthStore } from '@/modules/autenticacion/store/authStore'
-
+import '../styles/inicio.css'
 const authStore = useAuthStore()
 </script>
 
 <template>
   <v-container fluid class="pa-0">
     <div class="mb-6">
-      <h1 class="text-h5 font-weight-bold">Bienvenido al sistema de control de asistencia</h1>
+      <div class="title text-h1 font-weight-bold">
+        Bienvenido al sistema de control de asistencia
+      </div>
 
       <!-- <p class="text-medium-emphasis"></p> -->
     </div>

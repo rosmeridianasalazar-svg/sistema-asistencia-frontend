@@ -1,3 +1,10 @@
+/* usuarios - form */
+.subtitulo-modal {
+    font-size: 15px;
+    line-height: 1.2;
+    margin-top: 2px;
+}
+
 .usuarios-encabezado {
     display: flex;
     align-items: center;
@@ -6,7 +13,7 @@
 }
 
 .title {
-    font-size: 2.25rem;
+    font-size: 1.85rem;
     font-weight: bold;
 }
 
@@ -27,10 +34,7 @@
     }
 }
 
-/* =================================
-   VISTA DE TARJETAS PARA CELULARES
-================================= */
-
+/* vista para celulares */
 .usuarios-cards {
     width: 100%;
     overflow: hidden;
