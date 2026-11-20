@@ -15,6 +15,7 @@ const endpoints = {
         detalle: (id) => `/usuarios/${id}/`,
         actualizar: (id) => `/usuarios/${id}/`,
         eliminar: (id) => `/usuarios/${id}/`,
+        cumpleanos: '/usuarios/cumpleanos/',
     },
 
     roles: {

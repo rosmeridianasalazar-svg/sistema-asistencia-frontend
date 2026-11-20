@@ -39,6 +39,12 @@ const nombreCompleto = computed(() =>
 const menuItems = [
   { title: 'Inicio', icon: 'mdi-view-dashboard-outline', route: 'dashboard', roles: [] }, // [] = Todos los roles
   {
+    title: 'Página NEXOS',
+    icon: 'mdi-web',
+    url: 'https://nexostiendas.experiencia.vip/',
+    roles: [],
+  },
+  {
     title: 'Usuarios',
     icon: 'mdi-account-group-outline',
     route: 'usuarios',
@@ -53,6 +59,7 @@ const menuItems = [
   },
   { title: 'Asistencias', icon: 'mdi-calendar-check-outline', route: 'asistencias', roles: [] },
   { title: 'Notificaciones', icon: 'mdi-bell-outline', route: 'notificaciones', roles: [] },
+  { title: 'Cumpleaños', icon: 'mdi-cake-variant-outline', route: 'cumpleanios', roles: [] },
   { title: 'Sustentación', icon: 'mdi-file-document-outline', route: 'reportes', roles: [] },
   {
     title: 'Configuración',
@@ -61,6 +68,7 @@ const menuItems = [
     roles: ['Administrador'],
   },
 ]
+
 // 2. Filtra el menú según el rol del usuario
 const menuFiltrado = computed(() => {
   const user = authStore.usuario
@@ -76,8 +84,12 @@ const menuFiltrado = computed(() => {
   })
 })
 
-function navegar(nombreRuta) {
-  router.push({ name: nombreRuta })
+function navegar(item) {
+  if (item.url) {
+    window.open(item.url, '_blank', 'noopener,noreferrer')
+  } else {
+    router.push({ name: item.route })
+  }
 
   if (!mdAndUp.value) {
     drawer.value = false
@@ -169,13 +181,17 @@ function salir() {
         :key="item.title"
         :prepend-icon="item.icon"
         :title="item.title"
-        :active="route.name === item.route"
+        :active="Boolean(item.route && route.name === item.route)"
         color="#F2690D"
         base-color="white"
         rounded="lg"
         class="mb-1"
-        @click="navegar(item.route)"
+        @click="navegar(item)"
       >
+        <template v-if="item.url && !esModoMini" #append>
+          <v-icon icon="mdi-open-in-new" size="14" style="opacity: 0.65" />
+        </template>
+
         <v-tooltip v-if="esModoMini" activator="parent" location="end">
           {{ item.title }}
         </v-tooltip>

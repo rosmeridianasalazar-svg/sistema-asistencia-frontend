@@ -97,6 +97,12 @@ const routes = [
         component: () => import('@/modules/notificaciones/views/NotificacionesView.vue'),
       },
 
+      {
+        path: 'cumpleanios',
+        name: 'cumpleanios',
+        component: () => import('@/modules/cumpleanios/views/CumpleaniosView.vue'),
+      },
+
     ],
   },
 ]
