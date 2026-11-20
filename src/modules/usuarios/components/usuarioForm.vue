@@ -44,7 +44,7 @@ const {
       <!-- Encabezado -->
       <v-card-title class="d-flex align-center justify-space-between pa-4 pa-sm-5">
         <div>
-          <div class="text-h7 font-weight-bold">
+          <div class="text-h6 font-weight-bold" style="color: #F2690D">
             {{ esEdicion ? 'Editar usuario' : 'Registrar usuario' }}
           </div>
 
@@ -89,6 +89,7 @@ const {
                 item-value="id_rol"
                 variant="outlined"
                 density="compact"
+                color="orange-darken-2"
                 :rules="[reglas.requerido]"
                 :error-messages="serverErrors.campos?.id_rol"
                 @update:model-value="actualizarCampo"
@@ -102,6 +103,7 @@ const {
                 label="DNI"
                 variant="outlined"
                 density="compact"
+                color="orange-darken-2"
                 maxlength="8"
                 counter="8"
                 :rules="[reglas.requerido, reglas.dni]"
@@ -117,6 +119,7 @@ const {
                 label="Nombres"
                 variant="outlined"
                 density="compact"
+                color="orange-darken-2"
                 maxlength="50"
                 :rules="[reglas.requerido]"
                 :error-messages="serverErrors.campos?.nombre"
@@ -131,6 +134,7 @@ const {
                 label="Apellido paterno"
                 variant="outlined"
                 density="compact"
+                color="orange-darken-2"
                 maxlength="50"
                 :rules="[reglas.requerido]"
                 :error-messages="serverErrors.campos?.apellido_paterno"
@@ -145,6 +149,7 @@ const {
                 label="Apellido materno"
                 variant="outlined"
                 density="compact"
+                color="orange-darken-2"
                 maxlength="50"
                 :error-messages="serverErrors.campos?.apellido_materno"
                 @update:model-value="actualizarCampo"
@@ -158,6 +163,7 @@ const {
                 label="Teléfono"
                 variant="outlined"
                 density="compact"
+                color="orange-darken-2"
                 maxlength="9"
                 counter="9"
                 :rules="[reglas.requerido, reglas.telefono]"
@@ -174,6 +180,7 @@ const {
                 type="date"
                 variant="outlined"
                 density="compact"
+                color="orange-darken-2"
                 :min="fechaMinima"
                 :max="fechaMaxima"
                 :rules="[reglas.fecha]"
@@ -197,6 +204,7 @@ const {
                 type="email"
                 variant="outlined"
                 density="compact"
+                color="orange-darken-2"
                 maxlength="100"
                 :rules="[reglas.requerido, reglas.correo]"
                 :error-messages="serverErrors.campos?.correo"
@@ -212,6 +220,7 @@ const {
                 :type="mostrarPassword ? 'text' : 'password'"
                 variant="outlined"
                 density="compact"
+                color="orange-darken-2"
                 :append-inner-icon="mostrarPassword ? 'mdi-eye-off' : 'mdi-eye'"
                 :rules="esEdicion ? [reglas.password] : [reglas.passwordRequerida, reglas.password]"
                 :error-messages="serverErrors.campos?.password"
@@ -243,8 +252,8 @@ const {
         <v-divider />
 
         <!-- Acciones -->
-        <v-card-actions class="pa-4 flex-wrap justify-end">
-          <v-btn variant="text" color="grey-darken-1" :disabled="loading" @click="cerrar">
+        <v-card-actions class="pa-4 flex-wrap justify-end ga-2">
+          <v-btn variant="text" color="grey-darken-1" class="text-none" :disabled="loading" @click="cerrar">
             Cancelar
           </v-btn>
 
@@ -252,6 +261,7 @@ const {
             type="submit"
             color="#F2690D"
             variant="flat"
+            class="text-white font-weight-bold text-none px-5"
             :loading="loading"
             :disabled="!puedeGuardar"
           >

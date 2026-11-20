@@ -21,6 +21,15 @@ const endpoints = {
         listar: '/roles/',
         detalle: (id) => `/roles/${id}/`,
     },
+
+    notificaciones: {
+        listar: '/notificaciones/',
+        crear: '/notificaciones/',
+        marcarLeida: (id) => `/notificaciones/${id}/leer/`,
+        eliminar: (id) => `/notificaciones/${id}/eliminar/`,
+        eliminarTodas: '/notificaciones/eliminar-todas/',
+        destinatarios: '/notificaciones/destinatarios/',
+    },
 }
 
 export default endpoints

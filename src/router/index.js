@@ -91,6 +91,12 @@ const routes = [
         meta: { roles: ['Administrador'] },
       },
 
+      {
+        path: 'notificaciones',
+        name: 'notificaciones',
+        component: () => import('@/modules/notificaciones/views/NotificacionesView.vue'),
+      },
+
     ],
   },
 ]

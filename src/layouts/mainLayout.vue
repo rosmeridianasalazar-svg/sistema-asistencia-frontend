@@ -4,6 +4,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useDisplay } from 'vuetify'
 import { useAuthStore } from '@/modules/autenticacion/store/authStore'
 import DialogoCerrarSesion from '@/components/dialogoCerrarSesion.vue'
+import CampanaNoti from '@/modules/notificaciones/components/CampanaNoti.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -51,7 +52,7 @@ const menuItems = [
     roles: ['Administrador', 'Empleado'],
   },
   { title: 'Asistencias', icon: 'mdi-calendar-check-outline', route: 'asistencias', roles: [] },
-  { title: 'Anuncios', icon: 'mdi-bullhorn-outline', route: 'reportes', roles: [] },
+  { title: 'Notificaciones', icon: 'mdi-bell-outline', route: 'notificaciones', roles: [] },
   { title: 'Sustentación', icon: 'mdi-file-document-outline', route: 'reportes', roles: [] },
   {
     title: 'Configuración',
@@ -90,7 +91,7 @@ function salir() {
 </script>
 
 <template>
-  <!--  Altura dinámica: 88px en laptop para un logo grande, 64px en celular -->
+  <!-- Altura dinámica: 80px en laptop para un logo grande, 74px en celular -->
   <v-app-bar color="#111111" elevation="1" :height="mdAndUp ? 80 : 74">
     <v-app-bar-nav-icon color="white" @click="mdAndUp ? (rail = !rail) : (drawer = !drawer)" />
     <img
@@ -106,6 +107,7 @@ function salir() {
     />
 
     <v-spacer />
+    <CampanaNoti />
 
     <v-menu location="bottom end" transition="scale-transition" :offset="8">
       <template #activator="{ props }">
@@ -118,16 +120,9 @@ function salir() {
           </v-avatar>
 
           <div class="text-white">
-            <!-- Muestra solo el primer nombre en celular y el nombre completo en laptop -->
             <div class="text-caption text-sm-body-2 font-weight-bold d-flex align-center">
-              <!-- {{ nombreCompleto || 'Usuario' }} -->
               <v-icon icon="mdi-chevron-down" size="18" class="ml-1" />
             </div>
-
-            <!-- El correo se oculta en celular por altura, pero se ve en laptop -->
-            <!-- <div class="d-none d-sm-block text-caption" style="opacity: 0.9">
-              {{ usuario?.correo }}
-            </div> -->
           </div>
         </div>
       </template>

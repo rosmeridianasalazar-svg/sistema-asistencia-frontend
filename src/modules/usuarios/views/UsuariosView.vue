@@ -183,13 +183,12 @@ onMounted(() => {
 <template>
   <div class="usuarios-page">
     <!-- ENCABEZADO -->
-    <div class="usuarios-encabezado mb-5">
+    <div class="d-flex flex-wrap justify-space-between align-center ga-3 mb-5">
       <div>
-        <div class="title text-h5 font-weight-bold">Gestión de usuarios</div>
-
-        <div class="text-body-2 text-medium-emphasis mt-1">
-          Administra los usuarios registrados en el sistema.
-        </div>
+        <h1 class="text-h5 font-weight-bold text-grey-darken-4">Gestión de usuarios</h1>
+        <p class="text-body-2 text-grey-darken-1 mb-0">
+          Administra los usuarios registrados, roles y estados de acceso en el sistema.
+        </p>
       </div>
 
       <v-btn
@@ -197,7 +196,8 @@ onMounted(() => {
         prepend-icon="mdi-account-plus-outline"
         variant="flat"
         rounded="lg"
-        class="usuarios-boton-registro"
+        height="42"
+        class="text-white font-weight-bold text-none"
         @click="abrirRegistro"
       >
         Nuevo usuario
@@ -210,10 +210,9 @@ onMounted(() => {
     </v-alert>
 
     <!-- FILTROS -->
-    <v-card rounded="lg" elevation="0" class="usuarios-panel mb-4">
+    <v-card rounded="lg" elevation="0" border class="bg-white mb-4">
       <v-card-text class="pa-3 pa-sm-4">
-        <v-row align="center">
-          <!-- Búsqueda -->
+        <v-row align="center" dense>
           <v-col cols="12" md="5">
             <v-text-field
               v-model="busqueda"
@@ -221,14 +220,14 @@ onMounted(() => {
               placeholder="DNI, nombre, correo o teléfono"
               prepend-inner-icon="mdi-magnify"
               variant="outlined"
-              density="comfortable"
+              density="compact"
+              color="orange-darken-2"
               hide-details
               clearable
             />
           </v-col>
 
-          <!-- Rol -->
-          <v-col cols="12" sm="6" md="3">
+          <v-col cols="12" sm="5" md="3">
             <v-select
               v-model="filtroRol"
               label="Filtrar por rol"
@@ -236,14 +235,14 @@ onMounted(() => {
               item-title="nombre"
               item-value="id_rol"
               variant="outlined"
-              density="comfortable"
+              density="compact"
+              color="orange-darken-2"
               hide-details
               clearable
             />
           </v-col>
 
-          <!-- Estado -->
-          <v-col cols="12" sm="6" md="3">
+          <v-col cols="12" sm="5" md="3">
             <v-select
               v-model="filtroEstado"
               label="Estado"
@@ -252,40 +251,46 @@ onMounted(() => {
                 { title: 'Inactivos', value: false },
               ]"
               variant="outlined"
-              density="comfortable"
+              density="compact"
+              color="orange-darken-2"
               hide-details
               clearable
             />
           </v-col>
 
-          <!-- Limpiar filtros -->
-          <v-col cols="12" md="1">
+          <v-col cols="12" sm="2" md="1" class="d-flex justify-end">
             <v-btn
-              icon="mdi-filter-remove-outline"
-              variant="text"
-              color="grey-darken-1"
+              variant="tonal"
+              color="grey-darken-2"
+              height="40"
               block
-              aria-label="Limpiar filtros"
+              title="Limpiar filtros"
               @click="limpiarFiltros"
-            />
+            >
+              <v-icon icon="mdi-filter-remove-outline" />
+            </v-btn>
           </v-col>
         </v-row>
       </v-card-text>
     </v-card>
 
     <!-- USUARIOS REGISTRADOS -->
-    <v-card rounded="lg" elevation="0" class="usuarios-panel">
+    <v-card rounded="lg" elevation="0" border class="bg-white overflow-hidden">
       <v-card-title class="pa-4 d-flex align-center justify-space-between flex-wrap ga-2">
-        <div class="text-h6 font-weight-bold">Usuarios registrados</div>
+        <div class="d-flex align-center ga-2">
+          <v-icon icon="mdi-account-group-outline" color="#F2690D" />
+          <span class="text-subtitle-1 font-weight-bold text-grey-darken-4">
+            Usuarios registrados
+          </span>
+        </div>
 
-        <v-chip size="small" color="primary" variant="tonal">
-          {{ usuariosFiltrados.length }} registros
+        <v-chip size="small" color="#F2690D" variant="tonal" class="font-weight-bold">
+          {{ usuariosFiltrados.length }} {{ usuariosFiltrados.length === 1 ? 'registro' : 'registros' }}
         </v-chip>
       </v-card-title>
 
       <v-divider />
 
-      <!-- COMPONENTE DE TABLA -->
       <UsuariosTabla
         :usuarios="usuariosFiltrados"
         :cargando="cargando"
