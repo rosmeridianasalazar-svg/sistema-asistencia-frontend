@@ -92,6 +92,12 @@ const routes = [
       },
 
       {
+        path: 'horarios',
+        name: 'horarios',
+        component: () => import('@/modules/horarios/views/HorariosView.vue'),
+      },
+
+      {
         path: 'notificaciones',
         name: 'notificaciones',
         component: () => import('@/modules/notificaciones/views/NotificacionesView.vue'),

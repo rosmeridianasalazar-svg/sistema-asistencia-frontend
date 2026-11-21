@@ -18,6 +18,13 @@ const endpoints = {
         cumpleanos: '/usuarios/cumpleanos/',
     },
 
+    horarios: {
+        turnos: '/horarios/turnos/',
+        turnoDetalle: (id) => `/horarios/turnos/${id}/`,
+        asignaciones: '/horarios/asignaciones/',
+        asignacionEliminar: (id) => `/horarios/asignaciones/${id}/`,
+    },
+
     roles: {
         listar: '/roles/',
         detalle: (id) => `/roles/${id}/`,

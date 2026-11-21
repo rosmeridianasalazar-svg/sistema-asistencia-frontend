@@ -55,7 +55,7 @@ const menuItems = [
     title: 'Horarios',
     icon: 'mdi-calendar-clock-outline',
     route: 'horarios',
-    roles: ['Administrador', 'Empleado'],
+    roles: [],
   },
   { title: 'Asistencias', icon: 'mdi-calendar-check-outline', route: 'asistencias', roles: [] },
   { title: 'Notificaciones', icon: 'mdi-bell-outline', route: 'notificaciones', roles: [] },
