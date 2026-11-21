@@ -84,6 +84,13 @@ const routes = [
         name: 'dashboard',
         component: () => import('@/modules/inicio/views/DashboardView.vue'),
       },
+
+      {
+        path: 'perfil',
+        name: 'perfil',
+        component: () => import('@/modules/perfil/views/PerfilView.vue'),
+      },
+
       {
         path: 'usuarios',
         name: 'usuarios',

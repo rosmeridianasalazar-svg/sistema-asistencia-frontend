@@ -103,7 +103,6 @@ function salir() {
 </script>
 
 <template>
-  <!-- Altura dinámica: 80px en laptop para un logo grande, 74px en celular -->
   <v-app-bar color="#111111" elevation="1" :height="mdAndUp ? 80 : 74">
     <v-app-bar-nav-icon color="white" @click="mdAndUp ? (rail = !rail) : (drawer = !drawer)" />
     <img
@@ -127,8 +126,10 @@ function salir() {
           v-bind="props"
           class="d-flex align-center ga-1 ga-sm-2 mr-2 mr-sm-4 pa-1 px-sm-2 rounded-lg cursor-pointer perfil-hover"
         >
-          <v-avatar color="white" :size="mdAndUp ? 42 : 28">
-            <v-icon icon="mdi-account" color="#F2690D" :size="mdAndUp ? 24 : 18" />
+          <v-avatar :color="authStore.colorAvatar" :size="mdAndUp ? 40 : 30" class="elevation-1">
+            <span class="text-white font-weight-bold" :style="{ fontSize: mdAndUp ? '14px' : '11px' }">
+              {{ authStore.inicialesUsuario }}
+            </span>
           </v-avatar>
 
           <div class="text-white">
@@ -139,7 +140,6 @@ function salir() {
         </div>
       </template>
 
-      <!-- Tarjeta desplegable al hacer clic en el perfil -->
       <v-card min-width="220" rounded="lg" elevation="4">
         <div class="pa-3 bg-grey-lighten-4">
           <div class="text-subtitle-2 font-weight-bold text-grey-darken-4">
@@ -152,7 +152,15 @@ function salir() {
 
         <v-divider />
 
-        <v-list density="compact" class="pa-1">
+       <v-list density="compact" class="pa-1">
+          <v-list-item
+            prepend-icon="mdi-account-circle-outline"
+            title="Mi perfil"
+            rounded="md"
+            class="mb-1"
+            @click="router.push({ name: 'perfil' })"
+          />
+
           <v-list-item
             prepend-icon="mdi-logout"
             title="Cerrar sesión"
@@ -174,7 +182,6 @@ function salir() {
     color="#111111"
     width="200"
   >
-    <!-- Lista de navegación -->
     <v-list nav density="default" class="pa-3 mt-1">
       <v-list-item
         v-for="item in menuFiltrado"
@@ -205,7 +212,6 @@ function salir() {
     </v-container>
   </v-main>
 
-  <!-- Ventana modal de confirmación -->
   <DialogoCerrarSesion v-model="dialogoCerrarSesion" @confirmar="salir" />
 </template>
 

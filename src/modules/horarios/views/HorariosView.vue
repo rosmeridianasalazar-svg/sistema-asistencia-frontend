@@ -4,6 +4,7 @@ import { useAuthStore } from '@/modules/autenticacion/store/authStore'
 import api from '@/services/api'
 import endpoints from '@/services/endpoints'
 import horarioService from '../services/horarioService'
+import { descargarCSV, descargarPDF } from '@/utils/exportarArchivos'
 import CalendarioSemanal from '../components/CalendarioSemanal.vue'
 import AsignarHorarioModal from '../components/AsignarHorarioModal.vue'
 import CatalogoTurnosTab from '../components/CatalogoTurnosTab.vue'
@@ -16,6 +17,7 @@ const asignaciones = ref([])
 const turnos = ref([])
 const usuarios = ref([])
 const modalAsignar = ref(false)
+
 const modalConfirmarEliminar = ref(false)
 const bloqueAEliminar = ref(null)
 const eliminando = ref(false)
@@ -35,6 +37,76 @@ const esAdmin = computed(() => {
   const rol = user?.id_rol?.nombre || user?.rol || user?.nombre_rol || ''
   return rol.trim().toLowerCase() === 'administrador'
 })
+
+function formatearHora(horaStr) {
+  if (!horaStr) return ''
+  const [h, m] = horaStr.split(':')
+  const hora = Number(h)
+  const sufijo = hora >= 12 ? 'PM' : 'AM'
+  const hora12 = hora % 12 || 12
+  return `${String(hora12).padStart(2, '0')}:${m} ${sufijo}`
+}
+
+function exportarHorarios(formato) {
+  if (asignaciones.value.length === 0) {
+    mostrarMensaje({ texto: 'No hay horarios asignados para exportar.', color: 'warning' })
+    return
+  }
+
+  const fechaHoy = new Date().toISOString().slice(0, 10)
+
+
+  const mapaUsuarios = new Map()
+  for (const a of asignaciones.value) {
+    const id = a.usuarios_id_usuario
+    if (!mapaUsuarios.has(id)) {
+      mapaUsuarios.set(id, {
+        colaborador: a.usuario_nombre,
+        rol: a.usuario_rol,
+        1: 'Libre',
+        2: 'Libre',
+        3: 'Libre',
+        4: 'Libre',
+        5: 'Libre',
+        6: 'Libre',
+      })
+    }
+    const fila = mapaUsuarios.get(id)
+    const rango = `${formatearHora(a.horario_detalle?.hora_entrada)} - ${formatearHora(a.horario_detalle?.hora_salida)}`
+    for (const dia of a.dias || []) {
+      if (dia >= 1 && dia <= 6) {
+        fila[dia] = rango
+      }
+    }
+  }
+
+  const filas = Array.from(mapaUsuarios.values())
+  const columnas = [
+    { titulo: 'Colaborador', campo: 'colaborador' },
+    { titulo: 'Rol', campo: 'rol' },
+    { titulo: 'Lunes', campo: 1 },
+    { titulo: 'Martes', campo: 2 },
+    { titulo: 'Miércoles', campo: 3 },
+    { titulo: 'Jueves', campo: 4 },
+    { titulo: 'Viernes', campo: 5 },
+    { titulo: 'Sábado', campo: 6 },
+  ]
+
+  if (formato === 'csv') {
+    descargarCSV(`horarios_semanales_nexos_${fechaHoy}`, columnas, filas)
+    mostrarMensaje({ texto: 'Archivo CSV de horarios descargado.', color: 'success' })
+  } else {
+    descargarPDF({
+      nombreArchivo: `horarios_semanales_nexos_${fechaHoy}`,
+      titulo: 'Cronograma Semanal de Turnos del Equipo',
+      subtitulo: 'Distribución semanal por colaborador (Lunes a Sábado)',
+      columnas,
+      filas,
+      orientacion: 'landscape',
+    })
+    mostrarMensaje({ texto: 'Reporte PDF de horarios generado.', color: 'success' })
+  }
+}
 
 async function cargarTodo() {
   cargando.value = true
@@ -71,7 +143,6 @@ async function onHorarioAsignado() {
   await cargarTodo()
 }
 
-
 function abrirConfirmacionEliminar(bloque) {
   bloqueAEliminar.value = bloque
   modalConfirmarEliminar.value = true
@@ -107,20 +178,53 @@ onMounted(() => cargarTodo())
         </p>
       </div>
 
-      <v-btn
-        v-if="esAdmin"
-        color="#F2690D"
-        variant="flat"
-        prepend-icon="mdi-calendar-plus"
-        rounded="lg"
-        class="text-white font-weight-bold text-none"
-        @click="modalAsignar = true"
-      >
-        Asignar horario
-      </v-btn>
+      <div v-if="esAdmin" class="d-flex align-center ga-2">
+        <v-menu location="bottom end">
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              variant="outlined"
+              color="grey-darken-3"
+              prepend-icon="mdi-download-outline"
+              append-icon="mdi-chevron-down"
+              rounded="lg"
+              height="40"
+              class="bg-white font-weight-bold text-none"
+            >
+              Exportar
+            </v-btn>
+          </template>
+
+          <v-list density="compact" rounded="lg" elevation="3">
+            <v-list-item
+              prepend-icon="mdi-file-pdf-box"
+              title="Descargar PDF (Imprimir)"
+              base-color="red-darken-2"
+              @click="exportarHorarios('pdf')"
+            />
+            <v-list-item
+              prepend-icon="mdi-file-delimited-outline"
+              title="Descargar CSV (Excel)"
+              base-color="green-darken-3"
+              @click="exportarHorarios('csv')"
+            />
+          </v-list>
+        </v-menu>
+
+        <v-btn
+          color="#F2690D"
+          variant="flat"
+          prepend-icon="mdi-calendar-plus"
+          rounded="lg"
+          height="40"
+          class="text-white font-weight-bold text-none"
+          @click="modalAsignar = true"
+        >
+          Asignar horario
+        </v-btn>
+      </div>
     </div>
 
-    <!-- Pestañas visibles solo si es Administrador -->
     <v-tabs v-if="esAdmin" v-model="tabActiva" color="#F2690D" class="mb-5 border-b">
       <v-tab value="calendario" class="text-none font-weight-bold">
         <v-icon start icon="mdi-calendar-week" size="18" />
@@ -152,7 +256,6 @@ onMounted(() => cargarTodo())
       />
     </template>
 
-
     <AsignarHorarioModal
       v-if="esAdmin"
       v-model="modalAsignar"
@@ -160,8 +263,6 @@ onMounted(() => cargarTodo())
       :turnos="turnos"
       @guardado="onHorarioAsignado"
     />
-
-
     <v-dialog v-model="modalConfirmarEliminar" max-width="400">
       <v-card rounded="lg" class="pa-5">
         <div class="d-flex align-center ga-3 mb-3">
@@ -205,8 +306,6 @@ onMounted(() => cargarTodo())
         </div>
       </v-card>
     </v-dialog>
-
-
     <v-snackbar
       v-model="snackbar.visible"
       :color="snackbar.color"

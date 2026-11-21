@@ -9,13 +9,12 @@ import UsuariosNotificacion from '../components/usuarioNotificaciones.vue'
 
 import { useUsuarios } from '../composables/useUsuarios'
 import { obtenerErrores } from '@/services/apiError'
+import { descargarCSV, descargarPDF } from '@/utils/exportarArchivos'
 
 import '../styles/usuarios.css'
 
-// Dispositivos
 const { mobile } = useDisplay()
 
-// Datos y operaciones de usuarios
 const {
   usuarios,
   roles,
@@ -31,28 +30,23 @@ const {
   limpiarMensajes,
 } = useUsuarios()
 
-// Diálogos
 const dialogFormulario = ref(false)
 const dialogEliminar = ref(false)
 const usuarioSeleccionado = ref(null)
 
-// Errores
 const serverErrors = ref({ campos: {}, general: '' })
 const errorEliminacion = ref('')
 
-// Notificaciones
 const snackbar = ref(false)
 const snackbarMensaje = ref('')
 const snackbarColor = ref('success')
 
-// Filtros
 const busqueda = ref('')
 const filtroRol = ref(null)
 const filtroEstado = ref(null)
 
-// Usuarios procesados y filtrados
 const usuariosFiltrados = computed(() => {
-  const texto = busqueda.value.trim().toLowerCase()
+  const texto = (busqueda.value || '').trim().toLowerCase()
 
   return usuarios.value
     .map((usuario) => {
@@ -60,16 +54,13 @@ const usuariosFiltrados = computed(() => {
 
       return {
         ...usuario,
-
         nombre_completo: [usuario.nombre, usuario.apellido_paterno, usuario.apellido_materno]
           .filter(Boolean)
           .join(' '),
-
         nombre_rol:
           typeof rol === 'object' && rol !== null
             ? rol.nombre
             : roles.value.find((item) => Number(item.id_rol) === Number(rol))?.nombre || 'Sin rol',
-
         id_rol_numero: typeof rol === 'object' && rol !== null ? Number(rol.id_rol) : Number(rol),
       }
     })
@@ -91,19 +82,55 @@ const usuariosFiltrados = computed(() => {
     })
 })
 
-// Notificaciones
+function exportarUsuarios(formato) {
+  if (usuariosFiltrados.value.length === 0) {
+    mostrarNotificacion('No hay usuarios para exportar.', 'warning')
+    return
+  }
+
+  const columnas = [
+    { titulo: 'DNI', campo: 'dni' },
+    { titulo: 'Colaborador', campo: 'nombre_completo' },
+    { titulo: 'Rol', campo: 'nombre_rol' },
+    { titulo: 'Correo', campo: 'correo' },
+    { titulo: 'Teléfono', campo: 'telefono' },
+    { titulo: 'F. Nacimiento', campo: 'fecha_nacimiento' },
+    { titulo: 'Estado', campo: 'estado_texto' },
+  ]
+
+  const filas = usuariosFiltrados.value.map((u) => ({
+    ...u,
+    estado_texto: u.estado ? 'Activo' : 'Inactivo',
+  }))
+
+  const fechaHoy = new Date().toISOString().slice(0, 10)
+
+  if (formato === 'csv') {
+    descargarCSV(`usuarios_nexos_${fechaHoy}`, columnas, filas)
+    mostrarNotificacion('Archivo CSV de usuarios descargado.', 'success')
+  } else {
+    descargarPDF({
+      nombreArchivo: `usuarios_nexos_${fechaHoy}`,
+      titulo: 'Directorio de Colaboradores',
+      subtitulo: `Total de registros exportados: ${filas.length}`,
+      columnas,
+      filas,
+      orientacion: 'portrait',
+    })
+    mostrarNotificacion('Reporte PDF de usuarios generado.', 'success')
+  }
+}
+
 function mostrarNotificacion(texto, color = 'success') {
   snackbarMensaje.value = texto
   snackbarColor.value = color
   snackbar.value = true
 }
 
-// Limpiar errores
 function limpiarErrores() {
   serverErrors.value = { campos: {}, general: '' }
 }
 
-// Abrir registro
 function abrirRegistro() {
   usuarioSeleccionado.value = null
   limpiarErrores()
@@ -111,7 +138,6 @@ function abrirRegistro() {
   dialogFormulario.value = true
 }
 
-// Abrir edición
 function abrirEdicion(usuario) {
   usuarioSeleccionado.value = usuario
   limpiarErrores()
@@ -119,7 +145,6 @@ function abrirEdicion(usuario) {
   dialogFormulario.value = true
 }
 
-// Registrar o actualizar
 async function guardarUsuario(datos) {
   try {
     const resultado = usuarioSeleccionado.value
@@ -139,14 +164,12 @@ async function guardarUsuario(datos) {
   }
 }
 
-// Abrir confirmación de eliminación
 function abrirEliminar(usuario) {
   usuarioSeleccionado.value = usuario
   errorEliminacion.value = ''
   dialogEliminar.value = true
 }
 
-// Confirmar eliminación
 async function confirmarEliminacion() {
   if (!usuarioSeleccionado.value) return
 
@@ -162,19 +185,16 @@ async function confirmarEliminacion() {
     )
   } catch (err) {
     const errores = obtenerErrores(err)
-
     errorEliminacion.value = errores.general || 'No se pudo eliminar el usuario.'
   }
 }
 
-// Limpiar filtros
 function limpiarFiltros() {
   busqueda.value = ''
   filtroRol.value = null
   filtroEstado.value = null
 }
 
-// Carga inicial
 onMounted(() => {
   cargarDatos()
 })
@@ -191,17 +211,52 @@ onMounted(() => {
         </p>
       </div>
 
-      <v-btn
-        color="#F2690D"
-        prepend-icon="mdi-account-plus-outline"
-        variant="flat"
-        rounded="lg"
-        height="42"
-        class="text-white font-weight-bold text-none"
-        @click="abrirRegistro"
-      >
-        Nuevo usuario
-      </v-btn>
+      <div class="d-flex align-center ga-2">
+        <!-- Menú Exportar PDF / CSV -->
+        <v-menu location="bottom end">
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              variant="outlined"
+              color="grey-darken-3"
+              prepend-icon="mdi-download-outline"
+              append-icon="mdi-chevron-down"
+              rounded="lg"
+              height="42"
+              class="bg-white font-weight-bold text-none"
+            >
+              Exportar
+            </v-btn>
+          </template>
+
+          <v-list density="compact" rounded="lg" elevation="3">
+            <v-list-item
+              prepend-icon="mdi-file-pdf-box"
+              title="Descargar PDF (Imprimir)"
+              base-color="red-darken-2"
+              @click="exportarUsuarios('pdf')"
+            />
+            <v-list-item
+              prepend-icon="mdi-file-delimited-outline"
+              title="Descargar CSV (Excel)"
+              base-color="green-darken-3"
+              @click="exportarUsuarios('csv')"
+            />
+          </v-list>
+        </v-menu>
+
+        <v-btn
+          color="#F2690D"
+          prepend-icon="mdi-account-plus-outline"
+          variant="flat"
+          rounded="lg"
+          height="42"
+          class="text-white font-weight-bold text-none"
+          @click="abrirRegistro"
+        >
+          Nuevo usuario
+        </v-btn>
+      </div>
     </div>
 
     <!-- ERROR DE CARGA -->
@@ -212,7 +267,7 @@ onMounted(() => {
     <!-- FILTROS -->
     <v-card rounded="lg" elevation="0" border class="bg-white mb-4">
       <v-card-text class="pa-3 pa-sm-4">
-        <v-row align="center" dense>
+        <v-row align="center" density="compact">
           <v-col cols="12" md="5">
             <v-text-field
               v-model="busqueda"
@@ -224,6 +279,7 @@ onMounted(() => {
               color="orange-darken-2"
               hide-details
               clearable
+              @click:clear="busqueda = ''"
             />
           </v-col>
 
@@ -300,7 +356,6 @@ onMounted(() => {
       />
     </v-card>
 
-    <!-- FORMULARIO -->
     <UsuarioForm
       v-model="dialogFormulario"
       :usuario="usuarioSeleccionado"
@@ -311,7 +366,7 @@ onMounted(() => {
       @limpiar-errores="limpiarErrores"
     />
 
-    <!-- CONFIRMACIÓN DE ELIMINACIÓN -->
+
     <UsuarioDeleteDialog
       v-model="dialogEliminar"
       :usuario="usuarioSeleccionado"
@@ -320,7 +375,7 @@ onMounted(() => {
       @confirmar="confirmarEliminacion"
     />
 
-    <!-- NOTIFICACIONES -->
+
     <UsuariosNotificacion v-model="snackbar" :mensaje="snackbarMensaje" :color="snackbarColor" />
   </div>
 </template>
