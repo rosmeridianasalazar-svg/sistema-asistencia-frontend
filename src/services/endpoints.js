@@ -15,7 +15,16 @@ const endpoints = {
         detalle: (id) => `/usuarios/${id}/`,
         actualizar: (id) => `/usuarios/${id}/`,
         eliminar: (id) => `/usuarios/${id}/`,
+        miPerfil: '/usuarios/mi-perfil/',
+        cambiarPassword: '/usuarios/cambiar-password/',
         cumpleanos: '/usuarios/cumpleanos/',
+    },
+
+    horarios: {
+        turnos: '/horarios/turnos/',
+        turnoDetalle: (id) => `/horarios/turnos/${id}/`,
+        asignaciones: '/horarios/asignaciones/',
+        asignacionEliminar: (id) => `/horarios/asignaciones/${id}/`,
     },
 
     roles: {

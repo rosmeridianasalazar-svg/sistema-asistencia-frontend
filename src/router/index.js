@@ -28,6 +28,13 @@ const routes = [
         name: 'dashboard',
         component: () => import('@/modules/inicio/views/DashboardView.vue'),
       },
+
+      {
+        path: 'perfil',
+        name: 'perfil',
+        component: () => import('@/modules/perfil/views/PerfilView.vue'),
+      },
+
       {
         path: 'usuarios',
         name: 'usuarios',
@@ -63,6 +70,12 @@ const routes = [
           requiresAuth: true,
         },
       },
+      {
+        path: 'horarios',
+        name: 'horarios',
+        component: () => import('@/modules/horarios/views/HorariosView.vue'),
+      },
+
       {
         path: 'notificaciones',
         name: 'notificaciones',
