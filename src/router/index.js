@@ -1,57 +1,3 @@
-// import { createRouter, createWebHistory } from 'vue-router'
-// import { useAuthStore } from '@/modules/autenticacion/store/authStore'
-
-// const routes = [
-//   {
-//     path: '/',
-//     redirect: '/login',
-//   },
-//   {
-//     path: '/login',
-//     name: 'login',
-//     component: () => import('@/modules/autenticacion/views/LoginView.vue'),
-//     meta: {
-//       guestOnly: true,
-//     },
-//   },
-//   {
-//     path: '/dashboard',
-//     name: 'dashboard',
-//     component: () => import('@/modules/inicio/views/DashboardView.vue'),
-//     meta: {
-//       requiresAuth: true,
-//     },
-//   },
-
-//   {
-//     path: '/usuarios',
-//     name: 'usuarios',
-//     component: () => import('@/modules/usuarios/views/UsuariosView.vue'),
-//     meta: { requiresAuth: true },
-//   },
-// ]
-
-// const router = createRouter({
-//   history: createWebHistory(),
-//   routes,
-// })
-
-// router.beforeEach((to) => {
-//   const authStore = useAuthStore()
-
-//   if (to.meta.requiresAuth && !authStore.estaAutenticado) {
-//     return { name: 'login' }
-//   }
-
-//   if (to.meta.guestOnly && authStore.estaAutenticado) {
-//     return { name: 'dashboard' }
-//   }
-// })
-
-// export default router
-
-
-
 import { createRouter, createWebHistory } from 'vue-router'
 import { useAuthStore } from '@/modules/autenticacion/store/authStore'
 
@@ -66,14 +12,12 @@ const routes = [
     component: () => import('@/modules/autenticacion/views/LoginView.vue'),
     meta: { guestOnly: true },
   },
-  //restablecer
   {
     path: '/restablecer-password',
     name: 'restablecer-password',
     component: () => import('@/modules/autenticacion/views/RestablecerPasswordView.vue'),
     meta: { guestOnly: true },
   },
-  //---
   {
     path: '/',
     component: () => import('@/layouts/mainLayout.vue'),
@@ -88,21 +32,47 @@ const routes = [
         path: 'usuarios',
         name: 'usuarios',
         component: () => import('@/modules/usuarios/views/UsuariosView.vue'),
-        meta: { roles: ['Administrador'] },
+        meta: { requiresAuth: true, roles: ['Administrador'] },
       },
-
+      {
+        path: '/huellas',
+        name: 'huellas',
+        component: () => import('@/modules/huellas/views/HuellasView.vue'),
+        meta: {
+          requiresAuth: true,
+          roles: ['Administrador'],
+        },
+      },
+      {
+        path: 'asistencias',
+        name: 'asistencias',
+        component: () => import(
+          '@/modules/asistencias/views/AsistenciasView.vue'
+        ),
+        meta: {
+          requiresAuth: true,
+        },
+      },
+      {
+        path: 'asistencias/:usuarioId',
+        name: 'asistencias-usuario',
+        component: () => import(
+          '@/modules/asistencias/views/AsistenciasUsuarioView.vue'
+        ),
+        meta: {
+          requiresAuth: true,
+        },
+      },
       {
         path: 'notificaciones',
         name: 'notificaciones',
         component: () => import('@/modules/notificaciones/views/NotificacionesView.vue'),
       },
-
       {
         path: 'cumpleanios',
         name: 'cumpleanios',
         component: () => import('@/modules/cumpleanios/views/CumpleaniosView.vue'),
       },
-
     ],
   },
 ]
@@ -112,35 +82,41 @@ const router = createRouter({
   routes,
 })
 
-// router.beforeEach((to) => {
-//   const authStore = useAuthStore()
-
-//   if (to.matched.some(record => record.meta.requiresAuth) && !authStore.estaAutenticado) {
-//     return { name: 'login' }
-//   }
-
-//   if (to.meta.guestOnly && authStore.estaAutenticado) {
-//     return { name: 'dashboard' }
-//   }
-
-//   return true
-// })
-
-
-router.beforeEach((to, from) => {
+router.beforeEach((to) => {
   const authStore = useAuthStore()
-  const user = authStore.usuario
+
+  const requiereAutenticacion = to.matched.some(
+    (record) => record.meta.requiresAuth,
+  )
+
+  // Proteger rutas privadas.
+  if (requiereAutenticacion && !authStore.estaAutenticado) {
+    return { name: 'login' }
+  }
+
+  // Evitar que un usuario autenticado vuelva al login.
+  if (to.meta.guestOnly && authStore.estaAutenticado) {
+    return { name: 'dashboard' }
+  }
+
+  // Comprobar permisos por rol.
   const rolesPermitidos = to.meta.roles
 
-  // Si la ruta tiene restricción de roles
-  if (rolesPermitidos && rolesPermitidos.length > 0) {
-    const rolUsuario = user?.id_rol?.nombre || user?.rol || user?.nombre_rol || ''
+  if (rolesPermitidos?.length) {
+    const usuario = authStore.usuario
+
+    const rolUsuario =
+      usuario?.id_rol?.nombre ||
+      usuario?.rol ||
+      usuario?.nombre_rol ||
+      ''
 
     if (!rolesPermitidos.includes(rolUsuario)) {
-      return { name: 'dashboard' } // Si es Practicante y quiere entrar a /usuarios, lo devuelve a Inicio
+      return { name: 'dashboard' }
     }
   }
-})
 
+  return true
+})
 
 export default router

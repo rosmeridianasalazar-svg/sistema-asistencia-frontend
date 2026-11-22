@@ -60,13 +60,33 @@ export function obtenerErrores(error) {
 
     const errores = data.errors || data
 
+    if (data.mensaje) {
+        general = data.mensaje
+    }
+
+    if (data.errores) {
+        general = [
+            general,
+            ...(
+                Array.isArray(data.errores)
+                    ? data.errores
+                    : [data.errores]
+            ),
+        ].filter(Boolean).join(' ')
+    }
+
     for (const [campo, valor] of Object.entries(errores)) {
         const mensaje = obtenerPrimerMensaje(valor)
 
         if (!mensaje) continue
 
-        if (campo === 'detail' || campo === 'non_field_errors') {
-            general = traducirMensaje(mensaje, campo)
+        if (
+            campo === 'detail' ||
+            campo === 'non_field_errors' ||
+            campo === 'mensaje' ||
+            campo === 'errores'
+        ) {
+            general = general || traducirMensaje(mensaje, campo)
             continue
         }
 

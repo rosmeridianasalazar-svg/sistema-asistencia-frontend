@@ -6,7 +6,7 @@ const endpoints = {
         //recuperacion
         solicitarRecuperacion: '/autenticacion/recuperar-password/',
         confirmarRecuperacion: '/autenticacion/restablecer-password/',
-        
+
     },
 
     usuarios: {
@@ -21,6 +21,25 @@ const endpoints = {
     roles: {
         listar: '/roles/',
         detalle: (id) => `/roles/${id}/`,
+    },
+
+    huellas: {
+        usuarios: '/huellas/usuarios/',
+        registrar: '/huellas/registrar/',
+        usuario: (id) => `/huellas/usuario/${id}/`,
+        editar: (id) => `/huellas/${id}/editar/`,
+        desactivar: (id) => `/huellas/${id}/desactivar/`,
+    },
+
+    asistencias: {
+        listar: '/asistencias/',
+        usuarios: '/asistencias/usuarios/',
+        resumen: '/asistencias/resumen/',
+        marcar: '/asistencias/marcar/',
+        crearJornada: '/asistencias/jornadas/',
+        jornada: (usuarioId, fecha) =>
+            `/asistencias/jornadas/${usuarioId}/${fecha}/`,
+        detalle: id => `/asistencias/${id}/`,
     },
 
     notificaciones: {

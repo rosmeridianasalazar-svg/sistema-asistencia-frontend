@@ -50,7 +50,7 @@ const menuItems = [
     route: 'usuarios',
     roles: ['Administrador'],
   },
-  { title: 'Roles', icon: 'mdi-shield-account-outline', route: 'roles', roles: ['Administrador'] },
+  { title: 'Huellas', icon: 'mdi-fingerprint', route: 'huellas', roles: ['Administrador'] },
   {
     title: 'Horarios',
     icon: 'mdi-calendar-clock-outline',
@@ -172,7 +172,7 @@ function salir() {
     :rail="esModoMini"
     rail-width="72"
     color="#111111"
-    width="200"
+    width="248"
   >
     <!-- Lista de navegación -->
     <v-list nav density="default" class="pa-3 mt-1">
