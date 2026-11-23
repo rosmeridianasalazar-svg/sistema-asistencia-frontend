@@ -80,7 +80,7 @@ function limpiar() {
     <v-card-text>
       <div class="text-subtitle-1 font-weight-medium mb-3">Filtrar asistencias</div>
 
-      <v-row dense>
+      <v-row density="compact">
         <v-col cols="12" sm="6" md="3">
           <v-text-field
             v-model="filtros.fecha"
@@ -140,7 +140,7 @@ function limpiar() {
         </v-col>
 
         <v-col cols="12" sm="8" class="d-flex align-center ga-2">
-          <v-btn color="primary" prepend-icon="mdi-filter" :loading="loading" @click="buscar">
+          <v-btn color="#F2690D" prepend-icon="mdi-filter" :loading="loading" @click="buscar">
             Aplicar
           </v-btn>
 

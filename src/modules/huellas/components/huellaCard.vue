@@ -22,7 +22,7 @@ const dedos = {
   <v-card border rounded="lg" elevation="0" class="h-100">
     <v-card-text class="pa-4">
       <div class="d-flex align-center justify-space-between mb-3">
-        <v-avatar color="primary" variant="tonal" size="42">
+        <v-avatar color="#F2690D" variant="tonal" size="42">
           <v-icon icon="mdi-fingerprint" size="25" />
         </v-avatar>
 

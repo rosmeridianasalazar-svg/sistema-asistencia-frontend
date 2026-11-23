@@ -1,0 +1,17 @@
+.title {
+    font-size: 1.85rem;
+    font-weight: bold;
+}
+
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.fila-hover {
+    transition: background-color 0.15s ease;
+}
+
+.tabla-trabajadores :deep(th) {
+    letter-spacing: 0.04em;
+}

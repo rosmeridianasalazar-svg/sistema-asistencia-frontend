@@ -28,13 +28,7 @@ function horaTexto(valor) {
 </script>
 
 <template>
-  <v-card
-    v-for="jornada in jornadas"
-    :key="jornada.fecha"
-    rounded="lg"
-    variant="outlined"
-    class="mb-3"
-  >
+  <v-card v-for="jornada in jornadas" :key="jornada.fecha" rounded="lg" class="mb-3">
     <v-card-text>
       <div class="d-flex justify-space-between align-center mb-3">
         <div class="font-weight-medium">
@@ -46,7 +40,7 @@ function horaTexto(valor) {
         </v-chip>
       </div>
 
-      <v-row dense>
+      <v-row density="compact">
         <v-col cols="6">
           <div class="text-caption text-medium-emphasis">
             <v-icon size="small">mdi-login</v-icon>

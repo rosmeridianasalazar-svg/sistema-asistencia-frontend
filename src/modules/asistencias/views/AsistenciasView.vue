@@ -5,6 +5,7 @@ import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/modules/autenticacion/store/authStore'
 import { useAsistencias } from '../composables/useAsistencias'
 import AsistenciaUsuarios from '../components/asistenciaUsuarios.vue'
+import '../styles/asistencia.css'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -53,7 +54,7 @@ function abrirHistorial(usuario) {
 <template>
   <v-container fluid class="pa-4 pa-md-6">
     <div class="mb-5">
-      <div class="text-h5 font-weight-bold">Gestión de asistencias</div>
+      <div class="title text-h5 font-weight-bold">Gestión de asistencias</div>
 
       <div class="text-body-2 text-medium-emphasis">
         Consulta y administra los registros de asistencia.

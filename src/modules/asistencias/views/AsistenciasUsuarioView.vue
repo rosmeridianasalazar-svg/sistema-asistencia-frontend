@@ -158,11 +158,12 @@ function irPagina(pagina) {
     <div class="d-flex flex-wrap align-center ga-3 mb-5">
       <v-btn
         v-if="esAdministrador"
+        color="#F2690D"
         variant="outlined"
         prepend-icon="mdi-arrow-left"
         @click="volver"
       >
-        Trabajadores
+        Regresar
       </v-btn>
 
       <div class="flex-grow-1">
@@ -175,12 +176,22 @@ function irPagina(pagina) {
         </div>
       </div>
 
-      <v-btn v-if="esAdministrador" color="primary" prepend-icon="mdi-plus" @click="abrirCrear">
+      <v-btn v-if="esAdministrador" color="#F2690D" prepend-icon="mdi-plus" @click="abrirCrear">
         Nueva jornada
       </v-btn>
     </div>
 
-    <v-alert v-if="error" type="error" variant="tonal" closable class="mb-4">
+    <!-- <v-alert v-if="error" type="error" variant="tonal" closable class="mb-4">
+      {{ error }}
+    </v-alert> -->
+    <v-alert
+      v-if="error && !dialogFormulario"
+      type="error"
+      variant="tonal"
+      closable
+      class="mb-4"
+      @click:close="limpiarMensajes"
+    >
       {{ error }}
     </v-alert>
 
@@ -203,7 +214,7 @@ function irPagina(pagina) {
     </div>
 
     <div class="d-md-none">
-      <v-progress-linear v-if="cargando" indeterminate color="primary" class="mb-3" />
+      <v-progress-linear v-if="cargando" indeterminate color="#F2690D" class="mb-3" />
 
       <AsistenciaCard
         :jornadas="jornadas"
@@ -235,7 +246,13 @@ function irPagina(pagina) {
       :jornada="jornadaSeleccionada"
       :usuario-id="usuarioId"
       :loading="guardando"
+      :error="error"
       @guardar="guardarJornada"
+      @update:model-value="
+        (val) => {
+          if (!val) limpiarMensajes()
+        }
+      "
     />
 
     <AsistenciaEliminar

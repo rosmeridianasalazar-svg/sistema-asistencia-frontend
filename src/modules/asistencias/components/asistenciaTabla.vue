@@ -132,6 +132,6 @@ function colorEstado(estado) {
       </tbody>
     </v-table>
 
-    <v-progress-linear v-if="loading" indeterminate color="primary" />
+    <v-progress-linear v-if="loading" indeterminate color="#F2690D" />
   </v-card>
 </template>

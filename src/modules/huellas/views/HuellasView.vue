@@ -9,6 +9,7 @@ import HuellaFormulario from '../components/huellaFormulario.vue'
 import HuellaRegistroDialog from '../components/huellaRegistroDialog.vue'
 import HuellaExitoDialog from '../components/huellaExitoDialog.vue'
 import HuellaEstado from '../components/huellaEstado.vue'
+import '../styles/huellas.css'
 
 const {
   usuarios,
@@ -136,10 +137,13 @@ onMounted(cargarUsuarios)
 <template>
   <v-container fluid class="pa-4 pa-md-6">
     <div class="mb-5">
-      <div class="text-h5 font-weight-bold">Gestión de huellas</div>
+      <div class="title text-h5 font-weight-bold">Gestión de huellas</div>
 
       <div class="text-body-2 text-medium-emphasis mt-1">
-        Administración de registros biométricos de los usuarios.
+        Administración de registros biométricos de los usuarios
+      </div>
+      <div class="text-body-2 text-medium-emphasis mt-1">
+        Selecciona un usuario para administrar sus huellas! 🤗
       </div>
     </div>
 

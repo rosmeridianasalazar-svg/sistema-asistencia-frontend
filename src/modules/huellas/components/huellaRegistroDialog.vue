@@ -7,7 +7,7 @@ defineProps({
 <template>
   <v-dialog :model-value="modelValue" persistent max-width="420">
     <v-card rounded="lg" class="pa-6 text-center">
-      <v-progress-circular indeterminate color="primary" size="58" width="5" class="mb-5" />
+      <v-progress-circular indeterminate color="#F2690D" size="58" width="5" class="mb-5" />
 
       <div class="text-h6 font-weight-bold">Esperando respuesta del dispositivo</div>
 

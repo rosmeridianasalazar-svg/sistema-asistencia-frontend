@@ -15,17 +15,17 @@ defineEmits(['seleccionar'])
 <template>
   <div>
     <div class="d-flex align-center justify-space-between flex-wrap ga-2 mb-4">
-      <div>
+      <!-- <div>
         <div class="text-h6 font-weight-bold">Usuarios</div>
         <div class="text-body-2 text-medium-emphasis">
           Selecciona un usuario para administrar sus huellas.
         </div>
-      </div>
+      </div> -->
 
-      <v-chip variant="tonal" color="primary"> {{ usuarios.length }} usuarios </v-chip>
+      <v-chip variant="tonal" color="#F2690D"> {{ usuarios.length }} usuarios </v-chip>
     </div>
 
-    <v-progress-linear v-if="loading" indeterminate color="primary" class="mb-4" />
+    <v-progress-linear v-if="loading" indeterminate color="#F2690D" class="mb-4" />
 
     <v-row v-if="usuarios.length">
       <v-col v-for="usuario in usuarios" :key="usuario.id_usuario" cols="12" sm="6" lg="4" xl="3">

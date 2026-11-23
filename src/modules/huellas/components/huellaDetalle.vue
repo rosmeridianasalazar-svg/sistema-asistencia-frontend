@@ -22,6 +22,7 @@ defineEmits(['regresar', 'crear', 'editar', 'desactivar'])
     <div class="d-flex align-center flex-wrap ga-3 mb-5">
       <v-btn
         icon="mdi-arrow-left"
+        color="#F2690D"
         variant="tonal"
         aria-label="Regresar"
         @click="$emit('regresar')"
@@ -38,7 +39,7 @@ defineEmits(['regresar', 'crear', 'editar', 'desactivar'])
         </div>
       </div>
 
-      <v-btn color="primary" prepend-icon="mdi-fingerprint" @click="$emit('crear')">
+      <v-btn color="#F2690D" prepend-icon="mdi-fingerprint" @click="$emit('crear')">
         Nueva huella
       </v-btn>
     </div>
@@ -55,7 +56,7 @@ defineEmits(['regresar', 'crear', 'editar', 'desactivar'])
       </div>
     </div>
 
-    <v-progress-linear v-if="loading" indeterminate color="primary" class="mb-4" />
+    <v-progress-linear v-if="loading" indeterminate color="#F2690D" class="mb-4" />
 
     <v-row v-if="huellas.length">
       <v-col v-for="huella in huellas" :key="huella.id_huella" cols="12" sm="6" lg="4">
@@ -77,7 +78,7 @@ defineEmits(['regresar', 'crear', 'editar', 'desactivar'])
         Este usuario todavía no tiene huellas digitales.
       </div>
 
-      <v-btn color="primary" prepend-icon="mdi-plus" @click="$emit('crear')">
+      <v-btn color="#F2690D" prepend-icon="mdi-plus" @click="$emit('crear')">
         Crear nueva huella
       </v-btn>
     </v-card>

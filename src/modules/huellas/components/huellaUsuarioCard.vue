@@ -13,7 +13,7 @@ defineEmits(['seleccionar'])
   <v-card border rounded="lg" elevation="0" class="h-100">
     <v-card-text class="pa-4">
       <div class="d-flex align-center ga-3 mb-4">
-        <v-avatar color="primary" variant="tonal" size="48">
+        <v-avatar color="#F2690D" variant="tonal" size="48">
           <v-icon icon="mdi-account" size="26" />
         </v-avatar>
 
@@ -32,7 +32,15 @@ defineEmits(['seleccionar'])
           {{ usuario.rol || 'Sin rol' }}
         </div>
 
-        <v-chip color="primary" variant="tonal" size="small">
+        <!-- <v-chip color="green" variant="tonal" size="small">
+          <v-icon start icon="mdi-fingerprint" />
+          {{ usuario.total_huellas || 0 }} huellas
+        </v-chip> -->
+        <v-chip
+          :color="(usuario.total_huellas || 0) === 0 ? 'red' : 'green'"
+          variant="tonal"
+          size="small"
+        >
           <v-icon start icon="mdi-fingerprint" />
           {{ usuario.total_huellas || 0 }} huellas
         </v-chip>
@@ -40,7 +48,7 @@ defineEmits(['seleccionar'])
 
       <v-btn
         block
-        color="primary"
+        color="#F2690D"
         variant="tonal"
         append-icon="mdi-chevron-right"
         @click="$emit('seleccionar', usuario)"

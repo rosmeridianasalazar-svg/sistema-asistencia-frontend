@@ -27,15 +27,18 @@ const DIAS = [
   { id: 7, label: 'Dom' },
 ]
 
-watch(() => props.modelValue, (abierto) => {
-  if (abierto) {
-    usuarioId.value = null
-    bloques.value = [{ horario_id_horario: null, dias: [] }]
-    fechaInicio.value = new Date().toISOString().slice(0, 10)
-    fechaFin.value = ''
-    error.value = ''
-  }
-})
+watch(
+  () => props.modelValue,
+  (abierto) => {
+    if (abierto) {
+      usuarioId.value = null
+      bloques.value = [{ horario_id_horario: null, dias: [] }]
+      fechaInicio.value = new Date().toISOString().slice(0, 10)
+      fechaFin.value = ''
+      error.value = ''
+    }
+  },
+)
 
 function agregarBloque() {
   bloques.value.push({ horario_id_horario: null, dias: [] })
@@ -90,7 +93,13 @@ async function guardar() {
 </script>
 
 <template>
-  <v-dialog :model-value="modelValue" @update:model-value="cerrar" max-width="560" persistent scrollable>
+  <v-dialog
+    :model-value="modelValue"
+    @update:model-value="cerrar"
+    max-width="560"
+    persistent
+    scrollable
+  >
     <v-card rounded="lg" class="pa-5">
       <div class="d-flex justify-space-between align-center mb-2">
         <div class="d-flex align-center ga-2">
@@ -101,7 +110,8 @@ async function guardar() {
       </div>
 
       <p class="text-caption text-grey-darken-1 mb-4">
-        Puedes agregar múltiples bloques horarios si el colaborador entra a distintas horas según el día de la semana.
+        Puedes agregar múltiples bloques horarios si el colaborador entra a distintas horas según el
+        día de la semana.
       </p>
 
       <v-card-text class="pa-0" style="max-height: 65vh">
@@ -125,7 +135,10 @@ async function guardar() {
           class="pa-3 mb-3 rounded-lg border bloque-box"
         >
           <div class="d-flex justify-space-between align-center mb-2">
-            <span class="text-caption font-weight-bold" style="color: #F2690D; letter-spacing: 0.3px">
+            <span
+              class="text-caption font-weight-bold"
+              style="color: #f2690d; letter-spacing: 0.3px"
+            >
               Horario #{{ index + 1 }}
             </span>
 
@@ -145,7 +158,9 @@ async function guardar() {
             v-model="bloque.horario_id_horario"
             label="Turno / Bloque horario"
             :items="turnos.filter((t) => t.estado_horario)"
-            :item-title="(t) => `${t.nombre} (${t.hora_entrada?.slice(0, 5)} - ${t.hora_salida?.slice(0, 5)})`"
+            :item-title="
+              (t) => `${t.nombre} (${t.hora_entrada?.slice(0, 5)} - ${t.hora_salida?.slice(0, 5)})`
+            "
             item-value="id_horario"
             variant="outlined"
             density="compact"
@@ -189,7 +204,7 @@ async function guardar() {
         </v-btn>
 
         <!-- Vigencia -->
-        <v-row dense>
+        <v-row density="compact">
           <v-col cols="12" sm="6">
             <v-text-field
               v-model="fechaInicio"
@@ -215,12 +230,20 @@ async function guardar() {
         </v-row>
       </v-card-text>
 
-      <v-alert v-if="error" type="error" variant="tonal" density="compact" class="mt-3 text-caption">
+      <v-alert
+        v-if="error"
+        type="error"
+        variant="tonal"
+        density="compact"
+        class="mt-3 text-caption"
+      >
         {{ error }}
       </v-alert>
 
       <div class="d-flex justify-end ga-2 mt-4 pt-2 border-t">
-        <v-btn variant="text" color="grey-darken-1" class="text-none" @click="cerrar">Cancelar</v-btn>
+        <v-btn variant="text" color="grey-darken-1" class="text-none" @click="cerrar"
+          >Cancelar</v-btn
+        >
         <v-btn
           color="#F2690D"
           variant="flat"

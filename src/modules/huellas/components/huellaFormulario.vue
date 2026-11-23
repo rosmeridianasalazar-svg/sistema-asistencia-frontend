@@ -72,7 +72,7 @@ const guardar = () => {
     @update:model-value="!loading && emit('update:modelValue', $event)"
   >
     <v-card rounded="lg">
-      <v-card-title class="pa-4">
+      <v-card-title class="pa-4" style="color: #f2690d">
         {{ esEdicion ? 'Editar huella' : 'Nueva huella' }}
       </v-card-title>
 
@@ -153,7 +153,11 @@ const guardar = () => {
         <v-btn variant="text" :disabled="loading" @click="cerrar"> Cancelar </v-btn>
 
         <v-btn
-          color="primary"
+          type="submit"
+          prepend-icon="mdi-fingerprint"
+          color="#F2690D"
+          variant="flat"
+          class="text-white font-weight-bold text-none px-5"
           :loading="loading"
           :disabled="loading || (esEdicion && !hayCambios)"
           @click="guardar"

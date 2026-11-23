@@ -1,6 +1,6 @@
 <script setup>
 import { ref, watch } from 'vue'
-import { useAsistenciaForm } from '../composables/useAsistenciaForm'
+import { useAsistenciaForm } from '../composables/useAsistenciasForm'
 
 const props = defineProps({
   modelValue: Boolean,
@@ -13,6 +13,10 @@ const props = defineProps({
     default: null,
   },
   loading: Boolean,
+  error: {
+    type: String,
+    default: null,
+  },
 })
 
 const emit = defineEmits(['update:modelValue', 'guardar'])
@@ -79,6 +83,9 @@ function obtenerDatos() {
       <v-divider />
 
       <v-card-text class="pa-4">
+        <v-alert v-if="error" type="error" variant="tonal" density="compact" class="mb-4">
+          {{ error }}
+        </v-alert>
         <v-form ref="formRef" @submit.prevent="guardar">
           <v-text-field
             v-model="formulario.fecha"
@@ -137,7 +144,7 @@ function obtenerDatos() {
             </v-col>
           </v-row>
 
-          <v-alert type="info" variant="tonal" density="compact">
+          <v-alert type="info" variant="tonal" color="#F2690D" density="compact">
             La salida debe ser posterior a la entrada por al menos dos horas.
           </v-alert>
         </v-form>
