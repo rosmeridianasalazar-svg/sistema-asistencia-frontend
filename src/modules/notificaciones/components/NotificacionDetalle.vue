@@ -1,5 +1,6 @@
 <script setup>
 import { computed } from 'vue'
+import { parsearNotificacion } from '../utils/formatoMensaje'
 
 const props = defineProps({
   modelValue: Boolean,
@@ -8,14 +9,22 @@ const props = defineProps({
   eliminando: Boolean,
 })
 
-const emit = defineEmits(['update:modelValue', 'update:confirmarEliminar', 'pedirEliminar', 'confirmarBorrado'])
+const emit = defineEmits([
+  'update:modelValue',
+  'update:confirmarEliminar',
+  'pedirEliminar',
+  'confirmarBorrado',
+  'responder',
+])
 
-const contenido = computed(() => {
-  const texto = props.item?.mensaje || ''
-  const match = texto.match(/^\[(De|Para):\s*(.+?)\]\n?([\s\S]*)$/)
-  return match
-    ? { cabecera: `${match[1]}: ${match[2]}`, cuerpo: match[3] }
-    : { cabecera: null, cuerpo: texto }
+const info = computed(() => parsearNotificacion(props.item?.mensaje))
+const puedeResponder = computed(() => {
+  return (
+    props.item &&
+    props.item.estado_notificacion !== 'E' &&
+    info.value.tipoCabecera === 'De' &&
+    Boolean(info.value.nombrePersona)
+  )
 })
 </script>
 
@@ -51,20 +60,30 @@ const contenido = computed(() => {
       </div>
 
       <div
-        v-if="contenido.cabecera"
+        v-if="info.cabecera"
         class="text-subtitle-2 font-weight-bold text-grey-darken-3 mb-3 d-flex align-center ga-1"
       >
         <v-icon icon="mdi-account-circle-outline" size="18" color="#f37f0c" />
-        <span>{{ contenido.cabecera }}</span>
+        <span>{{ info.cabecera }}</span>
+      </div>
+
+      <div v-if="info.citaOriginal" class="cita-box pa-3 mb-3 rounded-md">
+        <div class="text-caption font-weight-bold text-grey-darken-2 mb-1 d-flex align-center ga-1">
+          <v-icon icon="mdi-reply" size="14" color="#f37f0c" />
+          <span>En respuesta al mensaje:</span>
+        </div>
+        <div class="text-caption text-grey-darken-1 font-italic">
+          "{{ info.citaOriginal }}"
+        </div>
       </div>
 
       <v-sheet
         border
         rounded="md"
         class="pa-4 bg-grey-lighten-5 text-body-2 text-grey-darken-4"
-        style="white-space: pre-line; line-height: 1.6; max-height: 360px; overflow-y: auto"
+        style="white-space: pre-line; line-height: 1.6; max-height: 320px; overflow-y: auto"
       >
-        {{ contenido.cuerpo }}
+        {{ info.cuerpo }}
       </v-sheet>
 
       <div class="d-flex justify-space-between align-center mt-4">
@@ -79,13 +98,27 @@ const contenido = computed(() => {
           Eliminar
         </v-btn>
 
-        <v-btn
-          color="#f37f0c"
-          class="text-white font-weight-bold px-5 text-none"
-          @click="$emit('update:modelValue', false)"
-        >
-          Cerrar
-        </v-btn>
+        <div class="d-flex align-center ga-2">
+          <v-btn
+            v-if="puedeResponder"
+            color="#f37f0c"
+            variant="flat"
+            prepend-icon="mdi-reply"
+            class="text-white font-weight-bold px-4 text-none"
+            @click="$emit('responder', { nombrePersona: info.nombrePersona, textoOriginal: info.cuerpo })"
+          >
+            Responder
+          </v-btn>
+
+          <v-btn
+            :variant="puedeResponder ? 'outlined' : 'flat'"
+            :color="puedeResponder ? 'grey-darken-2' : '#f37f0c'"
+            :class="puedeResponder ? 'text-none' : 'text-white font-weight-bold px-5 text-none'"
+            @click="$emit('update:modelValue', false)"
+          >
+            Cerrar
+          </v-btn>
+        </div>
       </div>
     </v-card>
   </v-dialog>
@@ -130,3 +163,10 @@ const contenido = computed(() => {
     </v-card>
   </v-dialog>
 </template>
+
+<style scoped>
+.cita-box {
+  background-color: #fff8f1;
+  border-left: 3px solid #f37f0c;
+}
+</style>

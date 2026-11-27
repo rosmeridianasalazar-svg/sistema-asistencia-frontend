@@ -2,12 +2,19 @@ import { defineStore } from 'pinia'
 import authService from '@/modules/autenticacion/services/authService'
 
 export const useAuthStore = defineStore('auth', {
-  state: () => ({
-    access: sessionStorage.getItem('access') || null,
-    refresh: sessionStorage.getItem('refresh') || null,
-    usuario: JSON.parse(sessionStorage.getItem('usuario') || 'null'),
-    colorAvatar: localStorage.getItem('nexos_avatar_color') || '#F2690D',
-  }),
+  state: () => {
+    const usuarioGuardado = JSON.parse(sessionStorage.getItem('usuario') || 'null')
+    const colorPorUsuario = usuarioGuardado?.id_usuario
+      ? localStorage.getItem(`nexos_avatar_color_${usuarioGuardado.id_usuario}`)
+      : null
+
+    return {
+      access: sessionStorage.getItem('access') || null,
+      refresh: sessionStorage.getItem('refresh') || null,
+      usuario: usuarioGuardado,
+      colorAvatar: colorPorUsuario || localStorage.getItem('nexos_avatar_color') || '#F2690D',
+    }
+  },
 
   getters: {
     estaAutenticado: (state) => !!state.access,
@@ -22,6 +29,9 @@ export const useAuthStore = defineStore('auth', {
     cambiarColorAvatar(color) {
       this.colorAvatar = color
       localStorage.setItem('nexos_avatar_color', color)
+      if (this.usuario?.id_usuario) {
+        localStorage.setItem(`nexos_avatar_color_${this.usuario.id_usuario}`, color)
+      }
     },
 
     async iniciarSesion(correo, password) {
@@ -43,6 +53,10 @@ export const useAuthStore = defineStore('auth', {
           'usuario',
           JSON.stringify(datos.usuario),
         )
+
+        const colorGuardado = localStorage.getItem(`nexos_avatar_color_${datos.usuario.id_usuario}`)
+        this.colorAvatar = colorGuardado || '#F2690D'
+        localStorage.setItem('nexos_avatar_color', this.colorAvatar)
 
         return {
           success: true,

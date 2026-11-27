@@ -3,6 +3,7 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '@/modules/autenticacion/store/authStore'
 import { useNotificacionStore } from '@/modules/notificaciones/store/notificacionStore'
+import { parsearNotificacion } from '@/modules/notificaciones/utils/formatoMensaje'
 
 const router = useRouter()
 const authStore = useAuthStore()
@@ -15,10 +16,9 @@ const ultimasCinco = computed(() => notificacionStore.recibidas.slice(0, 5))
 
 function formatearTextoCampana(texto, limite = 50) {
   if (!texto) return ''
-  const match = texto.match(/^\[De:\s*(.+?)\]\n?([\s\S]*)$/)
-  const limpio = match
-    ? `${match[1]}: ${match[2].replace(/\s+/g, ' ').trim()}`
-    : texto.replace(/\s+/g, ' ').trim()
+  const info = parsearNotificacion(texto)
+  const prefijo = info.nombrePersona ? `${info.nombrePersona}: ` : ''
+  const limpio = `${prefijo}${info.cuerpo.replace(/\s+/g, ' ').trim()}`
 
   return limpio.length > limite ? `${limpio.slice(0, limite)}...` : limpio
 }
@@ -134,7 +134,6 @@ async function abrirNotificacion(item) {
     </v-card>
   </v-menu>
 
-  <!-- Aviso flotante instantáneo cuando llega un mensaje en vivo -->
   <v-snackbar
     v-model="alertaVivo"
     color="#111111"

@@ -1,8 +1,17 @@
 import axios from 'axios'
 import endpoints from './endpoints'
 
+//const api = axios.create({
+//    baseURL: import.meta.env.VITE_API_URL,
+//    headers: {
+//        'Content-Type': 'application/json',
+//    },
+//})
 const api = axios.create({
-    baseURL: import.meta.env.VITE_API_URL,
+    baseURL:
+        window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
+            ? import.meta.env.VITE_API_URL
+            : `http://${window.location.hostname}:8000/api`,
     headers: {
         'Content-Type': 'application/json',
     },

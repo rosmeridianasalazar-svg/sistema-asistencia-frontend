@@ -4,12 +4,16 @@ import { useNotificacionStore } from '@/modules/notificaciones/store/notificacio
 
 const props = defineProps({
   modelValue: Boolean,
+  datosRespuesta: {
+    type: Object,
+    default: null, // { nombrePersona: '...', textoOriginal: '...' }
+  },
 })
 const emit = defineEmits(['update:modelValue', 'enviado'])
 
 const notificacionStore = useNotificacionStore()
 
-const tipoEnvio = ref('TODOS') // 'TODOS' | 'INDIVIDUAL'
+const tipoEnvio = ref('TODOS')
 const busquedaUsuario = ref('')
 const usuarioSeleccionado = ref(null)
 const mensaje = ref('')
@@ -17,7 +21,6 @@ const enviando = ref(false)
 const cargandoUsuarios = ref(false)
 const error = ref('')
 
-// Filtra en vivo por nombre, apellidos, DNI o correo
 const usuariosFiltrados = computed(() => {
   const q = busquedaUsuario.value.trim().toLowerCase()
   if (!q) return notificacionStore.destinatarios
@@ -34,7 +37,6 @@ watch(
   () => props.modelValue,
   async (abierto) => {
     if (abierto) {
-      tipoEnvio.value = 'TODOS'
       busquedaUsuario.value = ''
       usuarioSeleccionado.value = null
       mensaje.value = ''
@@ -42,6 +44,21 @@ watch(
       cargandoUsuarios.value = true
       await notificacionStore.cargarDestinatarios()
       cargandoUsuarios.value = false
+
+      if (props.datosRespuesta?.nombrePersona) {
+        tipoEnvio.value = 'INDIVIDUAL'
+        const buscado = props.datosRespuesta.nombrePersona.trim().toLowerCase()
+        const encontrado = notificacionStore.destinatarios.find(
+          (u) => (u.nombre_completo || '').trim().toLowerCase() === buscado
+        )
+        if (encontrado) {
+          usuarioSeleccionado.value = encontrado
+        } else {
+          busquedaUsuario.value = props.datosRespuesta.nombrePersona
+        }
+      } else {
+        tipoEnvio.value = 'TODOS'
+      }
     }
   }
 )
@@ -69,10 +86,21 @@ async function enviar() {
       ? 'TODOS'
       : String(usuarioSeleccionado.value.id_usuario)
 
+  let mensajeFinal = mensaje.value.trim()
+  if (props.datosRespuesta?.textoOriginal) {
+    const extracto = props.datosRespuesta.textoOriginal.replace(/\s+/g, ' ').trim()
+    const resumen = extracto.length > 110 ? `${extracto.slice(0, 110)}...` : extracto
+    mensajeFinal = `[En respuesta a: "${resumen}"]\n${mensajeFinal}`
+  }
+
+  // Sello de hora/fecha ligero sin modificar la base de datos
+  const selloTiempo = `[TS:${new Date().toISOString()}]`
+  mensajeFinal = `${selloTiempo}\n${mensajeFinal}`
+
   enviando.value = true
   const resultado = await notificacionStore.enviarNotificacion({
     destinatario: destinatarioFinal,
-    mensaje: mensaje.value.trim(),
+    mensaje: mensajeFinal,
   })
   enviando.value = false
 
@@ -91,9 +119,9 @@ async function enviar() {
       <!-- Cabecera -->
       <div class="d-flex justify-space-between align-center mb-3">
         <div class="d-flex align-center ga-2">
-          <v-icon icon="mdi-bell-plus-outline" color="#f57c00" />
+          <v-icon :icon="datosRespuesta ? 'mdi-reply' : 'mdi-bell-plus-outline'" color="#f57c00" />
           <span class="text-h6 font-weight-bold" style="color: #f57c00; font-size: 18px !important">
-            Nueva notificación
+            {{ datosRespuesta ? 'Responder mensaje' : 'Nueva notificación' }}
           </span>
         </div>
 
@@ -109,41 +137,52 @@ async function enviar() {
         </v-btn>
       </div>
 
+      <!-- Cita del mensaje al que se responde -->
+      <div v-if="datosRespuesta?.textoOriginal" class="cita-previa pa-3 mb-4 rounded-md">
+        <div class="text-caption font-weight-bold text-grey-darken-2 mb-1">
+          Respondiendo a {{ datosRespuesta.nombrePersona }}:
+        </div>
+        <div class="text-caption text-grey-darken-1 font-italic text-truncate">
+          "{{ datosRespuesta.textoOriginal }}"
+        </div>
+      </div>
+
       <v-form @submit.prevent="enviar">
         <!-- Selector: Todos vs Individual -->
-        <div class="text-caption font-weight-bold text-grey-darken-2 mb-1">
-          ¿A quién va dirigido?
-        </div>
-        <v-btn-toggle
-          v-model="tipoEnvio"
-          mandatory
-          color="#f37f0c"
-          variant="outlined"
-          density="compact"
-          class="w-100 mb-4"
-        >
-          <v-btn value="TODOS" class="w-50 text-none">
-            <v-icon start icon="mdi-bullhorn-outline" />
-            A todos (Anuncio)
-          </v-btn>
-          <v-btn value="INDIVIDUAL" class="w-50 text-none">
-            <v-icon start icon="mdi-account-outline" />
-            Un usuario
-          </v-btn>
-        </v-btn-toggle>
+        <template v-if="!datosRespuesta">
+          <div class="text-caption font-weight-bold text-grey-darken-2 mb-1">
+            ¿A quién va dirigido?
+          </div>
+          <v-btn-toggle
+            v-model="tipoEnvio"
+            mandatory
+            color="#f37f0c"
+            variant="outlined"
+            density="compact"
+            class="w-100 mb-4"
+          >
+            <v-btn value="TODOS" class="w-50 text-none">
+              <v-icon start icon="mdi-bullhorn-outline" />
+              A todos (Anuncio)
+            </v-btn>
+            <v-btn value="INDIVIDUAL" class="w-50 text-none">
+              <v-icon start icon="mdi-account-outline" />
+              Un usuario
+            </v-btn>
+          </v-btn-toggle>
+        </template>
 
         <!-- Buscador + Lista de usuarios -->
         <div v-if="tipoEnvio === 'INDIVIDUAL'" class="mb-4">
           <div class="text-caption font-weight-bold text-grey-darken-2 mb-1">
-            Selecciona el destinatario
+            Destinatario
           </div>
 
-          <!-- Chip cuando ya eligió un usuario -->
           <div v-if="usuarioSeleccionado" class="mb-2">
             <v-chip
               color="orange-darken-2"
               variant="tonal"
-              closable
+              :closable="!datosRespuesta"
               @click:close="usuarioSeleccionado = null"
             >
               <v-icon start icon="mdi-account-check" />
@@ -154,7 +193,6 @@ async function enviar() {
             </v-chip>
           </div>
 
-          <!-- Buscador y lista desplegable integrada -->
           <template v-else>
             <v-text-field
               v-model="busquedaUsuario"
@@ -201,14 +239,16 @@ async function enviar() {
 
         <!-- Mensaje -->
         <div class="text-caption font-weight-bold text-grey-darken-2 mb-1">
-          Mensaje
+          {{ datosRespuesta ? 'Tu respuesta' : 'Mensaje' }}
         </div>
         <v-textarea
           v-model="mensaje"
           :placeholder="
-            tipoEnvio === 'TODOS'
-              ? 'Escribe el anuncio para todo el equipo...'
-              : 'Escribe tu mensaje directo...'
+            datosRespuesta
+              ? 'Escribe tu respuesta aquí...'
+              : tipoEnvio === 'TODOS'
+                ? 'Escribe el anuncio para todo el equipo...'
+                : 'Escribe tu mensaje directo...'
           "
           variant="outlined"
           color="orange-darken-2"
@@ -244,10 +284,17 @@ async function enviar() {
             prepend-icon="mdi-send"
             :loading="enviando"
           >
-            Enviar
+            {{ datosRespuesta ? 'Enviar respuesta' : 'Enviar' }}
           </v-btn>
         </div>
       </v-form>
     </v-card>
   </v-dialog>
 </template>
+
+<style scoped>
+.cita-previa {
+  background-color: #fff8f1;
+  border-left: 3px solid #f37f0c;
+}
+</style>

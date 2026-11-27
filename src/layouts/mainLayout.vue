@@ -13,9 +13,7 @@ const authStore = useAuthStore()
 const { mdAndUp } = useDisplay()
 
 const drawer = ref(false)
-// Controla si el menú lateral está colapsado (solo íconos)
 const rail = ref(false)
-// Controla la apertura de la ventana de confirmación
 const dialogoCerrarSesion = ref(false)
 
 watch(
@@ -34,12 +32,16 @@ const usuario = computed(() => authStore.usuario)
 const nombreCompleto = computed(() =>
   `${usuario.value?.nombre || ''} ${usuario.value?.apellido_paterno || ''}`.trim(),
 )
+const primerNombre = computed(() => {
+  const nombre = (usuario.value?.nombre || '').trim()
+  return nombre.split(/\s+/)[0] || ''
+})
 
 // 1. Define qué roles pueden ver cada opción (igual que roles_permitidos en tu backend)
 const menuItems = [
   { title: 'Inicio', icon: 'mdi-view-dashboard-outline', route: 'dashboard', roles: [] }, // [] = Todos los roles
   {
-    title: 'Página NEXOS',
+    title: 'Página Nexos',
     icon: 'mdi-web',
     url: 'https://nexostiendas.experiencia.vip/',
     roles: [],
@@ -68,17 +70,12 @@ const menuItems = [
     roles: ['Administrador'],
   },
 ]
-
-// 2. Filtra el menú según el rol del usuario
 const menuFiltrado = computed(() => {
   const user = authStore.usuario
-  // Extrae el nombre del rol sin importar si el serializer lo envía como objeto o texto
   const rolUsuario = user?.id_rol?.nombre || user?.rol || user?.nombre_rol || ''
-
   return menuItems.filter((item) => {
     // Si roles está vacío, cualquier usuario logueado (Practicante, Empleado, Admin) lo ve
     if (!item.roles || item.roles.length === 0) return true
-
     // Si tiene roles definidos, verifica si el rol del usuario está en la lista
     return item.roles.includes(rolUsuario)
   })
@@ -108,6 +105,7 @@ function salir() {
     <img
       src="https://i.postimg.cc/NGkbyD4C/nexos2-0.png"
       alt="Logo NEXOS"
+      class="cursor-pointer"
       :style="{
         height: mdAndUp ? '88px' : '70px',
         width: mdAndUp ? '125px' : '140px',
@@ -115,6 +113,7 @@ function salir() {
         objectPosition: 'left center',
         marginLeft: mdAndUp ? '10px' : '6px',
       }"
+      @click="router.push({ name: 'dashboard' })"
     />
 
     <v-spacer />
@@ -132,10 +131,11 @@ function salir() {
             </span>
           </v-avatar>
 
-          <div class="text-white">
-            <div class="text-caption text-sm-body-2 font-weight-bold d-flex align-center">
-              <v-icon icon="mdi-chevron-down" size="18" class="ml-1" />
-            </div>
+          <div class="text-white d-flex align-center">
+            <span v-if="primerNombre" class="text-caption text-sm-body-2 font-weight-medium ml-1 mr-1">
+              {{ primerNombre }}
+            </span>
+            <v-icon icon="mdi-chevron-down" size="18" />
           </div>
         </div>
       </template>
@@ -152,7 +152,7 @@ function salir() {
 
         <v-divider />
 
-       <v-list density="compact" class="pa-1">
+        <v-list density="compact" class="pa-1">
           <v-list-item
             prepend-icon="mdi-account-circle-outline"
             title="Mi perfil"
@@ -180,7 +180,7 @@ function salir() {
     :rail="esModoMini"
     rail-width="72"
     color="#111111"
-    width="248"
+    width="240"
   >
     <v-list nav density="default" class="pa-3 mt-1">
       <v-list-item

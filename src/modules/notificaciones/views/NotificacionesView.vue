@@ -4,12 +4,14 @@ import { useNotificacionStore } from '@/modules/notificaciones/store/notificacio
 import NuevaNotificacion from '@/modules/notificaciones/components/NuevaNotificacion.vue'
 import Cards from '@/modules/notificaciones/components/Cards.vue'
 import NotificacionDetalle from '@/modules/notificaciones/components/NotificacionDetalle.vue'
+import { parsearNotificacion } from '@/modules/notificaciones/utils/formatoMensaje'
 
 const notificacionStore = useNotificacionStore()
-
+const busqueda = ref('')
 const bandeja = ref('RECIBIDOS')
 const filtroEstado = ref('TODAS')
 const modalAbierto = ref(false)
+const datosRespuesta = ref(null)
 const modalLectura = ref(false)
 const modalConfirmarEliminar = ref(false)
 const modalVaciarTodo = ref(false)
@@ -29,15 +31,41 @@ const totalEnBandejaActual = computed(() =>
 )
 
 const notificacionesFiltradas = computed(() => {
-  if (bandeja.value === 'ENVIADOS') return notificacionStore.enviadas
-  const base = notificacionStore.recibidas
-  if (filtroEstado.value === 'TODAS') return base
-  return base.filter((n) => n.estado_notificacion === filtroEstado.value)
+  let lista =
+    bandeja.value === 'ENVIADOS'
+      ? notificacionStore.enviadas
+      : notificacionStore.recibidas
+
+  if (bandeja.value === 'RECIBIDOS' && filtroEstado.value !== 'TODAS') {
+    lista = lista.filter((n) => n.estado_notificacion === filtroEstado.value)
+  }
+
+  const q = (busqueda.value || '').trim().toLowerCase()
+  if (!q) return lista
+
+  return lista.filter((n) => {
+    const info = parsearNotificacion(n.mensaje)
+    return (
+      info.nombrePersona.toLowerCase().includes(q) ||
+      info.cuerpo.toLowerCase().includes(q)
+    )
+  })
 })
 
 function mostrarConfirmacion(texto) {
   snackbarTexto.value = texto
   snackbar.value = true
+}
+
+function abrirNuevaNotificacion() {
+  datosRespuesta.value = null
+  modalAbierto.value = true
+}
+
+function iniciarRespuesta(payload) {
+  modalLectura.value = false
+  datosRespuesta.value = payload
+  modalAbierto.value = true
 }
 
 async function abrirDetalle(item) {
@@ -88,7 +116,7 @@ async function confirmarVaciarTodo() {
       <div>
         <h1 class="text-h5 font-weight-bold text-grey-darken-4">Notificaciones y Anuncios</h1>
         <p class="text-body-2 text-grey-darken-1 mb-0">
-          Revisa los comunicados recibidos, tu historial de enviados y redacta avisos
+          Revisa los comunicados recibidos, tu historial de enviados y responde mensajes
         </p>
       </div>
 
@@ -108,11 +136,11 @@ async function confirmarVaciarTodo() {
 
         <v-btn
           color="#f37f0c"
-          class="text-white font-weight-bold"
+          class="text-white font-weight-bold text-none"
           prepend-icon="mdi-plus"
           height="42"
           rounded="lg"
-          @click="modalAbierto = true"
+          @click="abrirNuevaNotificacion"
         >
           Nueva notificación
         </v-btn>
@@ -130,23 +158,41 @@ async function confirmarVaciarTodo() {
       </v-tab>
     </v-tabs>
 
-    <v-chip-group
-      v-if="bandeja === 'RECIBIDOS'"
-      v-model="filtroEstado"
-      mandatory
-      selected-class="text-orange-darken-3"
-      class="mb-4"
-    >
-      <v-chip value="TODAS" variant="outlined" filter>
-        Todas ({{ notificacionStore.recibidas.length }})
-      </v-chip>
-      <v-chip value="P" variant="outlined" filter>
-        Sin leer ({{ notificacionStore.noLeidasCount }})
-      </v-chip>
-      <v-chip value="L" variant="outlined" filter>
-        Leídas ({{ notificacionStore.recibidas.length - notificacionStore.noLeidasCount }})
-      </v-chip>
-    </v-chip-group>
+    <!-- Filtros por estado + Buscador por persona o mensaje -->
+    <div class="d-flex flex-wrap justify-space-between align-center ga-3 mb-4">
+      <v-chip-group
+        v-if="bandeja === 'RECIBIDOS'"
+        v-model="filtroEstado"
+        mandatory
+        selected-class="text-orange-darken-3"
+      >
+        <v-chip value="TODAS" variant="outlined" filter>
+          Todas ({{ notificacionStore.recibidas.length }})
+        </v-chip>
+        <v-chip value="P" variant="outlined" filter>
+          Sin leer ({{ notificacionStore.noLeidasCount }})
+        </v-chip>
+        <v-chip value="L" variant="outlined" filter>
+          Leídas ({{ notificacionStore.recibidas.length - notificacionStore.noLeidasCount }})
+        </v-chip>
+      </v-chip-group>
+
+      <div v-else />
+
+      <v-text-field
+        v-model="busqueda"
+        placeholder="Buscar por persona o mensaje..."
+        prepend-inner-icon="mdi-magnify"
+        variant="outlined"
+        density="compact"
+        color="orange-darken-2"
+        bg-color="white"
+        hide-details
+        clearable
+        style="max-width: 310px; width: 100%"
+        @click:clear="busqueda = ''"
+      />
+    </div>
 
     <div v-if="notificacionStore.cargando" class="d-flex justify-center py-10">
       <v-progress-circular indeterminate color="#f37f0c" />
@@ -162,23 +208,26 @@ async function confirmarVaciarTodo() {
       <v-icon icon="mdi-bell-sleep-outline" size="48" color="grey-lighten-1" class="mb-2" />
       <div class="text-subtitle-1 font-weight-medium text-grey-darken-2">
         {{
-          bandeja === 'ENVIADOS'
-            ? 'Aún no has enviado ninguna notificación'
-            : 'No hay notificaciones en esta sección'
+          busqueda.trim()
+            ? `No se encontraron mensajes con "${busqueda}"`
+            : bandeja === 'ENVIADOS'
+              ? 'Aún no has enviado ninguna notificación'
+              : 'No hay notificaciones en esta sección'
         }}
       </div>
     </v-card>
 
-    <v-row v-else>
-      <v-col v-for="item in notificacionesFiltradas" :key="item.id_notificacion" cols="12" md="6">
-        <Cards
-          :item="item"
-          :es-enviado="bandeja === 'ENVIADOS'"
-          @abrir="abrirDetalle"
-          @eliminar="pedirConfirmacionEliminar"
-        />
-      </v-col>
-    </v-row>
+    <!-- Lista compacta estilo bandeja de correo -->
+    <v-card v-else rounded="lg" elevation="0" border class="bg-white overflow-hidden">
+      <Cards
+        v-for="item in notificacionesFiltradas"
+        :key="item.id_notificacion"
+        :item="item"
+        :es-enviado="bandeja === 'ENVIADOS'"
+        @abrir="abrirDetalle"
+        @eliminar="pedirConfirmacionEliminar"
+      />
+    </v-card>
 
     <NotificacionDetalle
       v-model="modalLectura"
@@ -187,9 +236,9 @@ async function confirmarVaciarTodo() {
       :eliminando="eliminando"
       @pedir-eliminar="pedirConfirmacionEliminar"
       @confirmar-borrado="confirmarEliminar"
+      @responder="iniciarRespuesta"
     />
 
-    <!-- Confirmación para vaciar toda la bandeja actual -->
     <v-dialog v-model="modalVaciarTodo" max-width="400" :persistent="vaciandoTodo">
       <v-card rounded="lg" class="pa-5">
         <div class="d-flex align-center ga-2 mb-2">
@@ -226,7 +275,11 @@ async function confirmarVaciarTodo() {
       </v-card>
     </v-dialog>
 
-    <NuevaNotificacion v-model="modalAbierto" @enviado="mostrarConfirmacion" />
+    <NuevaNotificacion
+      v-model="modalAbierto"
+      :datos-respuesta="datosRespuesta"
+      @enviado="mostrarConfirmacion"
+    />
 
     <v-snackbar v-model="snackbar" color="success" timeout="3000" location="bottom right">
       {{ snackbarTexto }}
