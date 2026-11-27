@@ -12,7 +12,11 @@ const notificacionStore = useNotificacionStore()
 const alertaVivo = ref(false)
 const mensajeVivo = ref('')
 
-const ultimasCinco = computed(() => notificacionStore.recibidas.slice(0, 5))
+const ultimasCinco = computed(() =>
+  notificacionStore.recibidas
+    .filter((n) => n.estado_notificacion === 'P')
+    .slice(0, 5)
+)
 
 function formatearTextoCampana(texto, limite = 50) {
   if (!texto) return ''
@@ -87,7 +91,7 @@ async function abrirNotificacion(item) {
       <v-divider />
 
       <div v-if="ultimasCinco.length === 0" class="pa-5 text-center text-caption text-grey">
-        No tienes notificaciones aún.
+        No tienes notificaciones nuevas aún.
       </div>
 
       <v-list v-else density="compact" class="py-0" max-height="300">
