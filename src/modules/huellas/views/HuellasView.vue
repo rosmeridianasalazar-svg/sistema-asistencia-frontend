@@ -69,28 +69,73 @@ const abrirEdicion = (huella) => {
   dialogFormulario.value = true
 }
 
+// const guardarFormulario = async (datos) => {
+//   if (!usuarioSeleccionado.value || guardando.value) return
+
+//   if (huellaEditando.value) {
+//     try {
+//       await actualizarHuella(
+//         huellaEditando.value.id_huella,
+//         datos,
+//         usuarioSeleccionado.value.id_usuario,
+//       )
+
+//       dialogFormulario.value = false
+//       huellaEditando.value = null
+//     } catch {
+//       // El composable gestiona el error.
+//     }
+
+//     return
+//   }
+
+//   dialogFormulario.value = false
+//   dialogEspera.value = true
+
+//   try {
+//     const respuesta = await crearHuella({
+//       usuarios_id_usuario: usuarioSeleccionado.value.id_usuario,
+//       mano: datos.mano,
+//       dedo: datos.dedo,
+//     })
+
+//     huellaCreada.value = respuesta
+//     dialogEspera.value = false
+//     dialogExito.value = true
+//   } catch {
+//     dialogEspera.value = false
+//   }
+// }
+
 const guardarFormulario = async (datos) => {
   if (!usuarioSeleccionado.value || guardando.value) return
 
+  // 1. Cerramos el formulario y abrimos el diálogo de espera en AMBOS casos
+  dialogFormulario.value = false
+  dialogEspera.value = true
+
   if (huellaEditando.value) {
     try {
-      await actualizarHuella(
+      const respuesta = await actualizarHuella(
         huellaEditando.value.id_huella,
         datos,
         usuarioSeleccionado.value.id_usuario,
       )
 
-      dialogFormulario.value = false
       huellaEditando.value = null
+      dialogEspera.value = false
+
+      // Se muestra también el diálogo de éxito al editar
+      huellaCreada.value = respuesta
+      dialogExito.value = true
     } catch {
-      // El composable gestiona el error.
+      dialogEspera.value = false
+      // Si falla, opcionalmente puedes volver a abrir el formulario:
+      dialogFormulario.value = true
     }
 
     return
   }
-
-  dialogFormulario.value = false
-  dialogEspera.value = true
 
   try {
     const respuesta = await crearHuella({

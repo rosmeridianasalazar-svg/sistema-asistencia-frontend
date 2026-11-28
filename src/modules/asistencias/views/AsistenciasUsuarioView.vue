@@ -155,28 +155,26 @@ function irPagina(pagina) {
 
 <template>
   <v-container fluid class="pa-4 pa-md-6">
-    <div class="d-flex flex-wrap align-center ga-3 mb-5">
-      <v-btn
-        v-if="esAdministrador"
-        color="#F2690D"
-        variant="outlined"
-        prepend-icon="mdi-arrow-left"
-        @click="volver"
-      >
-        Regresar
-      </v-btn>
-
-      <div class="flex-grow-1">
+    <div v-if="esAdministrador" class="d-flex flex-wrap align-center ga-3 mb-5">
+      <v-btn color="#F2690D" prepend-icon="mdi-arrow-left" @click="volver"> Regresar </v-btn>
+      <!-- <div class="flex-grow-1">
         <div class="text-h5 font-weight-bold">
-          {{ esAdministrador ? 'Historial de asistencias' : 'Mis asistencias' }}
+          {{ esAdministrador ? 'Historial de asistencias' : '' }}
         </div>
 
         <div class="text-body-2 text-medium-emphasis">
-          Consulta las jornadas y el total de horas registradas.
+          {{ esAdministrador ? 'Consulta las jornadas y el total de horas registradas' : ' ' }}
+        </div>
+      </div> -->
+      <div class="flex-grow-1">
+        <div class="text-h5 font-weight-bold">Historial de asistencias</div>
+
+        <div class="text-body-2 text-medium-emphasis">
+          Consulta las jornadas y el total de horas registradas
         </div>
       </div>
 
-      <v-btn v-if="esAdministrador" color="#F2690D" prepend-icon="mdi-plus" @click="abrirCrear">
+      <v-btn color="#F2690D" variant="outlined" prepend-icon="mdi-plus" @click="abrirCrear">
         Nueva jornada
       </v-btn>
     </div>

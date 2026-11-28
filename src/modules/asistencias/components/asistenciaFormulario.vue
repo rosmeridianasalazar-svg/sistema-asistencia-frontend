@@ -93,7 +93,6 @@ function obtenerDatos() {
             type="date"
             variant="outlined"
             :rules="[requerido]"
-            :readonly="esEdicion"
           />
 
           <div class="text-subtitle-2 font-weight-medium mb-2">Registro de entrada</div>

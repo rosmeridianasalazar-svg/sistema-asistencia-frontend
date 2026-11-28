@@ -36,10 +36,14 @@ function obtenerIniciales(nombre) {
 
 function colorPorRol(rol) {
   const r = (rol || '').toLowerCase()
-  if (r.includes('admin')) return 'purple'
-  if (r.includes('supervisor') || r.includes('jefe')) return 'indigo'
-  if (r.includes('operario') || r.includes('tecnico')) return 'teal'
+  if (r.includes('administrador')) return 'purple'
+  if (r.includes('practicante')) return 'teal'
+  if (r.includes('empleado')) return 'indigo'
   return 'blue-grey'
+}
+function redondearHoras(horas) {
+  const valor = Number(horas)
+  return isNaN(valor) ? 0 : Math.round(valor)
 }
 </script>
 
@@ -182,7 +186,7 @@ function colorPorRol(rol) {
                   prepend-icon="mdi-clock-check-outline"
                   class="font-weight-bold"
                 >
-                  {{ usuario.total_formateado }}
+                  {{ redondearHoras(usuario.total_horas) }} horas
                 </v-chip>
               </td>
 
@@ -210,15 +214,16 @@ function colorPorRol(rol) {
         <v-card
           v-for="usuario in usuariosFiltrados"
           :key="usuario.id_usuario"
-          variant="outlined"
+          border
+          elevation="0"
+          color:="grey-lighten-5"
           rounded="lg"
-          class="border-opacity-50"
           @click="seleccionar(usuario)"
         >
           <v-card-text class="pa-4">
             <div class="d-flex justify-space-between align-start ga-2">
               <div class="d-flex align-center ga-3">
-                <v-avatar color="primary" variant="tonal" size="40" class="font-weight-bold">
+                <v-avatar color="#F2690D" variant="tonal" size="40" class="font-weight-bold">
                   {{ obtenerIniciales(usuario.nombre) }}
                 </v-avatar>
                 <div>
@@ -243,7 +248,7 @@ function colorPorRol(rol) {
                   <strong class="text-high-emphasis">{{ usuario.dias_registrados }}</strong> días
                 </span>
                 <v-chip size="x-small" color="success" variant="tonal" class="font-weight-bold">
-                  {{ usuario.total_formateado }} hrs
+                  {{ redondearHoras(usuario.total_horas) }} hrs
                 </v-chip>
               </div>
             </div>

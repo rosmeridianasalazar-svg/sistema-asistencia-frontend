@@ -25,6 +25,18 @@ function horaTexto(valor) {
     minute: '2-digit',
   })
 }
+
+function colorEstado(estado) {
+  return (
+    {
+      PUNTUAL: 'success',
+      TARDANZA: 'warning',
+      JUSTIFICADO: 'info',
+      FALTA: 'error',
+      REGISTRADA: 'secondary',
+    }[estado] || 'secondary'
+  )
+}
 </script>
 
 <template>
@@ -35,7 +47,7 @@ function horaTexto(valor) {
           {{ fechaTexto(jornada.fecha) }}
         </div>
 
-        <v-chip size="small" color="success" variant="tonal">
+        <v-chip size="small" :color="jornada.duracion ? 'success' : 'secondary'" variant="tonal">
           {{ jornada.duracion || 'Incompleta' }}
         </v-chip>
       </div>
@@ -49,8 +61,19 @@ function horaTexto(valor) {
           <div class="text-h6">
             {{ horaTexto(jornada.entrada?.fecha_hora_evento) }}
           </div>
-          <div class="text-caption">
+          <!-- <div class="text-caption">
             {{ jornada.entrada?.estado_asistencia || '-' }}
+          </div> -->
+          <div>
+            <v-chip
+              v-if="jornada.entrada?.estado_asistencia"
+              size="x-small"
+              :color="colorEstado(jornada.entrada.estado_asistencia)"
+              variant="tonal"
+            >
+              {{ jornada.entrada.estado_asistencia }}
+            </v-chip>
+            <span v-else class="text-caption text-medium-emphasis">-</span>
           </div>
         </v-col>
 

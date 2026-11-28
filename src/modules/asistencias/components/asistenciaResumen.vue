@@ -17,6 +17,10 @@ function obtenerIniciales(nombre) {
     ? `${partes[0][0]}${partes[1][0]}`.toUpperCase()
     : nombre.slice(0, 2).toUpperCase()
 }
+function redondearHoras(horas) {
+  const valor = Number(horas)
+  return isNaN(valor) ? 0 : Math.round(valor)
+}
 </script>
 
 <template>
@@ -25,8 +29,12 @@ function obtenerIniciales(nombre) {
       <div class="d-flex flex-wrap justify-space-between align-center ga-3">
         <div class="d-flex align-center ga-3">
           <v-avatar color="#F2690D" variant="tonal" size="38" class="font-weight-bold text-body-2">
-            {{ obtenerIniciales(trabajador?.nombre) }}
+            <span v-if="trabajador?.nombre">
+              {{ obtenerIniciales(trabajador.nombre) }}
+            </span>
+            <v-icon v-else icon="mdi-account-outline" />
           </v-avatar>
+
           <div>
             <div class="text-h6 font-weight-bold">
               {{ trabajador?.nombre || 'Mis asistencias' }}
@@ -36,20 +44,30 @@ function obtenerIniciales(nombre) {
             </div>
           </div>
         </div>
-
-        <v-chip color="success" variant="tonal">
-          <v-icon start>mdi-clock-check-outline</v-icon>
-          {{ resumen?.total_formateado || '00:00' }} horas
-        </v-chip>
+        <!-- <div>
+          <v-chip color="success" variant="tonal">
+            <v-icon start>mdi-clock-check-outline</v-icon>
+            {{ resumen?.total_formateado || '00:00' }} horas
+          </v-chip>
+        </div> -->
       </div>
 
       <v-divider class="my-4" />
 
       <v-row>
         <v-col cols="6" sm="4">
-          <div class="text-caption text-medium-emphasis">Total de horas</div>
+          <div class="text-caption text-medium-emphasis">
+            <v-icon
+              icon="mdi-clock-check-outline"
+              color="success"
+              variant="tonal"
+              size="small"
+              start
+            ></v-icon>
+            Total de horas
+          </div>
           <div class="text-h5 font-weight-bold">
-            {{ resumen?.total_horas ?? 0 }}
+            {{ redondearHoras(resumen?.total_horas) }} horas
           </div>
         </v-col>
 
