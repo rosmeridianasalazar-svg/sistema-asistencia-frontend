@@ -1,61 +1,55 @@
 <script setup>
-import { ref, computed, watch } from 'vue'
+import { ref, watch } from 'vue'
 import { useNotificacionStore } from '@/modules/notificaciones/store/notificacionStore'
 
 const props = defineProps({
   modelValue: Boolean,
+  datosRespuesta: { type: Object, default: null },
 })
 const emit = defineEmits(['update:modelValue', 'enviado'])
 
 const notificacionStore = useNotificacionStore()
 
-const tipoEnvio = ref('TODOS') // 'TODOS' | 'INDIVIDUAL'
-const busquedaUsuario = ref('')
-const usuarioSeleccionado = ref(null)
+const tipoEnvio = ref('TODOS')
+const destinatarioId = ref(null)
 const mensaje = ref('')
 const enviando = ref(false)
-const cargandoUsuarios = ref(false)
 const error = ref('')
-
-// Filtra en vivo por nombre, apellidos, DNI o correo
-const usuariosFiltrados = computed(() => {
-  const q = busquedaUsuario.value.trim().toLowerCase()
-  if (!q) return notificacionStore.destinatarios
-
-  return notificacionStore.destinatarios.filter((u) => {
-    const nombre = (u.nombre_completo || '').toLowerCase()
-    const dni = (u.dni || '').toLowerCase()
-    const correo = (u.correo || '').toLowerCase()
-    return nombre.includes(q) || dni.includes(q) || correo.includes(q)
-  })
-})
 
 watch(
   () => props.modelValue,
   async (abierto) => {
-    if (abierto) {
-      tipoEnvio.value = 'TODOS'
-      busquedaUsuario.value = ''
-      usuarioSeleccionado.value = null
-      mensaje.value = ''
-      error.value = ''
-      cargandoUsuarios.value = true
+    if (!abierto) return
+    destinatarioId.value = null
+    mensaje.value = ''
+    error.value = ''
+
+    if (!notificacionStore.destinatarios.length) {
       await notificacionStore.cargarDestinatarios()
-      cargandoUsuarios.value = false
+    }
+
+    if (props.datosRespuesta?.nombrePersona) {
+      tipoEnvio.value = 'INDIVIDUAL'
+      const buscado = props.datosRespuesta.nombrePersona.trim().toLowerCase()
+      const encontrado = notificacionStore.destinatarios.find(
+        (u) => (u.nombre_completo || '').trim().toLowerCase() === buscado
+      )
+      if (encontrado) destinatarioId.value = encontrado.id_usuario
+    } else {
+      tipoEnvio.value = 'TODOS'
     }
   }
 )
 
 function cerrar() {
-  if (enviando.value) return
-  emit('update:modelValue', false)
+  if (!enviando.value) emit('update:modelValue', false)
 }
 
 async function enviar() {
   error.value = ''
 
-  if (tipoEnvio.value === 'INDIVIDUAL' && !usuarioSeleccionado.value) {
-    error.value = 'Selecciona un usuario de la lista.'
+  if (tipoEnvio.value === 'INDIVIDUAL' && !destinatarioId.value) {
+    error.value = 'Selecciona un destinatario de la lista.'
     return
   }
 
@@ -64,15 +58,17 @@ async function enviar() {
     return
   }
 
-  const destinatarioFinal =
-    tipoEnvio.value === 'TODOS'
-      ? 'TODOS'
-      : String(usuarioSeleccionado.value.id_usuario)
+  let cuerpo = mensaje.value.trim()
+  if (props.datosRespuesta?.textoOriginal) {
+    const limpio = props.datosRespuesta.textoOriginal.replace(/\s+/g, ' ').trim()
+    const resumen = limpio.length > 110 ? `${limpio.slice(0, 110)}...` : limpio
+    cuerpo = `[En respuesta a: "${resumen}"]\n${cuerpo}`
+  }
 
   enviando.value = true
   const resultado = await notificacionStore.enviarNotificacion({
-    destinatario: destinatarioFinal,
-    mensaje: mensaje.value.trim(),
+    destinatario: tipoEnvio.value === 'TODOS' ? 'TODOS' : String(destinatarioId.value),
+    mensaje: `[TS:${new Date().toISOString()}]\n${cuerpo}`,
   })
   enviando.value = false
 
@@ -86,135 +82,116 @@ async function enviar() {
 </script>
 
 <template>
-  <v-dialog :model-value="modelValue" max-width="500" @update:model-value="cerrar">
-    <v-card rounded="lg" class="pa-5">
-      <!-- Cabecera -->
-      <div class="d-flex justify-space-between align-center mb-3">
+  <v-dialog :model-value="modelValue" max-width="480" @update:model-value="cerrar">
+    <v-card rounded="lg" class="bg-white pa-5">
+      <!-- Cabecera limpia sobre fondo blanco -->
+      <div class="d-flex justify-space-between align-center pb-3 mb-4 border-b">
         <div class="d-flex align-center ga-2">
-          <v-icon icon="mdi-bell-plus-outline" color="#f57c00" />
-          <span class="text-h6 font-weight-bold" style="color: #f57c00; font-size: 18px !important">
-            Nueva notificación
+          <v-icon :icon="datosRespuesta ? 'mdi-reply' : 'mdi-bell-plus-outline'" color="#f37f0c" />
+          <span class="text-subtitle-1 font-weight-bold text-grey-darken-4">
+            {{ datosRespuesta ? 'Responder mensaje' : 'Nueva notificación' }}
           </span>
         </div>
 
         <v-btn
-          icon
+          icon="mdi-close"
           variant="text"
           size="small"
           color="grey-darken-2"
           :disabled="enviando"
           @click="cerrar"
-        >
-          <v-icon icon="mdi-close" />
-        </v-btn>
+        />
       </div>
 
       <v-form @submit.prevent="enviar">
-        <!-- Selector: Todos vs Individual -->
-        <div class="text-caption font-weight-bold text-grey-darken-2 mb-1">
-          ¿A quién va dirigido?
-        </div>
-        <v-btn-toggle
-          v-model="tipoEnvio"
-          mandatory
-          color="#f37f0c"
-          variant="outlined"
-          density="compact"
-          class="w-100 mb-4"
+        <!-- Cita del mensaje al que se responde -->
+        <div
+          v-if="datosRespuesta?.textoOriginal"
+          class="bg-orange-lighten-5 border-s-lg border-orange-darken-2 pa-3 mb-4 rounded-e"
         >
-          <v-btn value="TODOS" class="w-50 text-none">
-            <v-icon start icon="mdi-bullhorn-outline" />
-            A todos (Anuncio)
-          </v-btn>
-          <v-btn value="INDIVIDUAL" class="w-50 text-none">
-            <v-icon start icon="mdi-account-outline" />
-            Un usuario
-          </v-btn>
-        </v-btn-toggle>
-
-        <!-- Buscador + Lista de usuarios -->
-        <div v-if="tipoEnvio === 'INDIVIDUAL'" class="mb-4">
-          <div class="text-caption font-weight-bold text-grey-darken-2 mb-1">
-            Selecciona el destinatario
+          <div class="text-caption font-weight-bold text-grey-darken-3 mb-1">
+            Respondiendo a {{ datosRespuesta.nombrePersona }}:
           </div>
-
-          <!-- Chip cuando ya eligió un usuario -->
-          <div v-if="usuarioSeleccionado" class="mb-2">
-            <v-chip
-              color="orange-darken-2"
-              variant="tonal"
-              closable
-              @click:close="usuarioSeleccionado = null"
-            >
-              <v-icon start icon="mdi-account-check" />
-              {{ usuarioSeleccionado.nombre_completo }}
-              <span v-if="usuarioSeleccionado.dni" class="ml-1 text-caption">
-                (DNI: {{ usuarioSeleccionado.dni }})
-              </span>
-            </v-chip>
+          <div class="text-caption text-grey-darken-2 font-italic text-truncate">
+            "{{ datosRespuesta.textoOriginal }}"
           </div>
-
-          <!-- Buscador y lista desplegable integrada -->
-          <template v-else>
-            <v-text-field
-              v-model="busquedaUsuario"
-              placeholder="Buscar por nombre, apellido o DNI..."
-              variant="outlined"
-              density="compact"
-              color="orange-darken-2"
-              prepend-inner-icon="mdi-magnify"
-              clearable
-              hide-details
-              :disabled="enviando"
-              class="mb-2"
-            />
-
-            <v-sheet border rounded="md" max-height="160" class="overflow-y-auto">
-              <div v-if="cargandoUsuarios" class="pa-3 text-center text-caption text-grey">
-                Cargando usuarios...
-              </div>
-
-              <div
-                v-else-if="usuariosFiltrados.length === 0"
-                class="pa-3 text-center text-caption text-grey"
-              >
-                No se encontraron usuarios con "{{ busquedaUsuario }}"
-              </div>
-
-              <v-list v-else density="compact" class="py-0">
-                <v-list-item
-                  v-for="u in usuariosFiltrados"
-                  :key="u.id_usuario"
-                  @click="usuarioSeleccionado = u"
-                >
-                  <v-list-item-title class="text-body-2 font-weight-medium">
-                    {{ u.nombre_completo }}
-                  </v-list-item-title>
-                  <v-list-item-subtitle class="text-caption">
-                    DNI: {{ u.dni || 'Sin DNI' }} · {{ u.correo }}
-                  </v-list-item-subtitle>
-                </v-list-item>
-              </v-list>
-            </v-sheet>
-          </template>
         </div>
 
-        <!-- Mensaje -->
-        <div class="text-caption font-weight-bold text-grey-darken-2 mb-1">
-          Mensaje
+        <!-- Selector de alcance -->
+        <template v-if="!datosRespuesta">
+          <div class="text-caption font-weight-bold text-grey-darken-3 mb-1">
+            ¿A quién va dirigido?
+          </div>
+          <v-btn-toggle
+            v-model="tipoEnvio"
+            mandatory
+            divided
+            variant="outlined"
+            density="comfortable"
+            class="w-100 mb-4 border"
+          >
+            <v-btn
+              value="TODOS"
+              class="w-50 text-none font-weight-bold"
+              :color="tipoEnvio === 'TODOS' ? '#f37f0c' : 'grey-darken-2'"
+              :variant="tipoEnvio === 'TODOS' ? 'flat' : 'text'"
+            >
+              <v-icon start icon="mdi-bullhorn-outline" />
+              A todos (Anuncio)
+            </v-btn>
+            <v-btn
+              value="INDIVIDUAL"
+              class="w-50 text-none font-weight-bold"
+              :color="tipoEnvio === 'INDIVIDUAL' ? '#f37f0c' : 'grey-darken-2'"
+              :variant="tipoEnvio === 'INDIVIDUAL' ? 'flat' : 'text'"
+            >
+              <v-icon start icon="mdi-account-outline" />
+              Un usuario
+            </v-btn>
+          </v-btn-toggle>
+        </template>
+
+        <!-- Selector inteligente con buscador integrado -->
+        <div v-if="tipoEnvio === 'INDIVIDUAL'" class="mb-4">
+          <div class="text-caption font-weight-bold text-grey-darken-3 mb-1">
+            Destinatario
+          </div>
+          <v-autocomplete
+            v-model="destinatarioId"
+            :items="notificacionStore.destinatarios"
+            item-title="nombre_completo"
+            item-value="id_usuario"
+            placeholder="Escribe o selecciona un usuario..."
+            prepend-inner-icon="mdi-account-search-outline"
+            variant="outlined"
+            density="comfortable"
+            color="orange-darken-2"
+            no-data-text="No se encontraron usuarios"
+            hide-details="auto"
+            :readonly="Boolean(datosRespuesta)"
+            :disabled="enviando"
+          />
+        </div>
+
+        <!-- Mensaje con altura fija y scroll interno al escribir textos largos -->
+        <div class="text-caption font-weight-bold text-grey-darken-3 mb-1">
+          {{ datosRespuesta ? 'Tu respuesta' : 'Mensaje' }}
         </div>
         <v-textarea
           v-model="mensaje"
           :placeholder="
-            tipoEnvio === 'TODOS'
-              ? 'Escribe el anuncio para todo el equipo...'
-              : 'Escribe tu mensaje directo...'
+            datosRespuesta
+              ? 'Escribe tu respuesta aquí...'
+              : tipoEnvio === 'TODOS'
+                ? 'Escribe el anuncio para todo el equipo...'
+                : 'Escribe tu mensaje directo...'
           "
           variant="outlined"
           color="orange-darken-2"
-          rows="3"
-          :disabled="enviando"
+          rows="4"
+          no-resize
           hide-details="auto"
+          :disabled="enviando"
         />
 
         <v-alert
@@ -230,8 +207,9 @@ async function enviar() {
         <div class="d-flex justify-end ga-2 mt-5">
           <v-btn
             type="button"
-            variant="text"
-            color="grey-darken-1"
+            variant="outlined"
+            color="grey-darken-2"
+            class="text-none font-weight-medium"
             :disabled="enviando"
             @click="cerrar"
           >
@@ -240,11 +218,12 @@ async function enviar() {
           <v-btn
             type="submit"
             color="#f37f0c"
-            class="text-white font-weight-bold px-5"
+            variant="flat"
+            class="text-white font-weight-bold text-none px-5"
             prepend-icon="mdi-send"
             :loading="enviando"
           >
-            Enviar
+            {{ datosRespuesta ? 'Enviar respuesta' : 'Enviar' }}
           </v-btn>
         </div>
       </v-form>
